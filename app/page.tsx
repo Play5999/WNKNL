@@ -3,24 +3,27 @@
 import { useMemo, useState } from "react";
 
 type Language = "nl" | "pap" | "en";
+type GameType = 4 | 3 | 2;
 
-type NumberPlay = {
+type Play = {
+  id: number;
   number: string;
   stake: string;
-  manual: boolean;
+  suggestedFrom?: number;
 };
 
-type PlayRow = {
-  id: number;
-  four: NumberPlay;
-  three: NumberPlay;
-  two: NumberPlay;
+type Games = {
+  4: Play[];
+  3: Play[];
+  2: Play[];
 };
 
-const emptyPlay = (): NumberPlay => ({
+let nextId = 10;
+
+const createPlay = (): Play => ({
+  id: nextId++,
   number: "",
   stake: "",
-  manual: false,
 });
 
 const translations = {
@@ -33,17 +36,17 @@ const translations = {
     title1: "Kies jouw nummers.",
     title2: "Speel mee.",
     subtitle:
-      "Vul je nummers en inzet in euro per nummer in. Bekijk daarna je speeloverzicht.",
+      "Kies zelf je 4-, 3- of 2-cijferige nummers en bepaal je inzet per nummer.",
     playNow: "Speel nu",
     yourNumbers: "Jouw nummers",
-    numberHelp:
-      "Vul een 4-cijferig nummer in. De laatste 3 en 2 cijfers worden automatisch voorgesteld.",
+    help:
+      "Vul je nummers en inzet in. Bij een 4-cijferig nummer worden de laatste 3 en 2 cijfers automatisch voorgesteld.",
     four: "4 cijfers",
     three: "3 cijfers",
     two: "2 cijfers",
     number: "Nummer",
     stake: "Inzet",
-    addRow: "+ Rij toevoegen",
+    add: "+ Nummer",
     overview: "Mijn speeloverzicht",
     noNumbers: "Nog geen volledig ingevulde nummers met inzet.",
     game: "Spel",
@@ -53,22 +56,7 @@ const translations = {
     first: "1e prijs",
     second: "2e prijs",
     third: "3e prijs",
-    rulesTitle: "Hoe werkt het?",
-    rulesIntro:
-      "Hier leggen we uit hoe je speelt, wanneer een nummer wint en hoe de prijs wordt berekend.",
-    chooseTitle: "Kies je nummers",
-    chooseText:
-      "Je kunt 4-, 3- en 2-cijferige nummers spelen. Je bepaalt zelf de inzet per nummer.",
-    winTitle: "Controleer de uitslag",
-    winText:
-      "Na de trekking vergelijken we jouw gespeelde nummers met de officiële uitslag.",
-    prizeTitle: "Bekijk je winst",
-    prizeText:
-      "Bij een winnend nummer wordt het gewonnen bedrag op basis van je inzet berekend en in je account getoond.",
-    prizeTable: "Prijzentabel",
-    prizeNote:
-      "De definitieve uitbetalingsbedragen worden hier toegevoegd zodra de prijzentabel is vastgelegd.",
-    remove: "Rij verwijderen",
+    noResult: "Nog geen uitslag",
   },
 
   pap: {
@@ -80,17 +68,17 @@ const translations = {
     title1: "Skohé bo numbernan.",
     title2: "Hunga ku nos.",
     subtitle:
-      "Yena bo number i bo apuesta na euro pa kada number. Wak bo resúmen despues.",
+      "Skohé bo number di 4, 3 òf 2 sifra i determiná bo apuesta pa kada number.",
     playNow: "Hunga awor",
     yourNumbers: "Bo numbernan",
-    numberHelp:
-      "Yena un number di 4 sifra. E último 3 i 2 sifranan ta wordu sugerí automátikamente.",
+    help:
+      "Yena bo number i apuesta. Ora bo yena 4 sifra, e último 3 i 2 sifranan ta wordu sugerí.",
     four: "4 sifra",
     three: "3 sifra",
     two: "2 sifra",
     number: "Number",
     stake: "Apuesta",
-    addRow: "+ Añadi un liña",
+    add: "+ Number",
     overview: "Resúmen di bo wega",
     noNumbers: "No tin number kompletá ku apuesta ainda.",
     game: "Wega",
@@ -100,22 +88,7 @@ const translations = {
     first: "1er premio",
     second: "2do premio",
     third: "3er premio",
-    rulesTitle: "Kon e ta funshoná?",
-    rulesIntro:
-      "Aki nos ta splika kon pa hunga, kon bo ta gana i kon e premio ta wordu kalkulá.",
-    chooseTitle: "Skohé bo numbernan",
-    chooseText:
-      "Bo por hunga number di 4, 3 òf 2 sifra. Bo ta skohe bo apuesta pa kada number.",
-    winTitle: "Wak e resultado",
-    winText:
-      "Despues di e sorteo nos ta kompará bo numbernan ku e resultado ofisial.",
-    prizeTitle: "Wak bo premio",
-    prizeText:
-      "Si bo number gana, e montante ganá ta wordu kalkulá segun bo apuesta.",
-    prizeTable: "Tabla di premio",
-    prizeNote:
-      "E montantenan definitivo di premio lo wordu agregá despues ku e tabla ta definitivo.",
-    remove: "Kita liña",
+    noResult: "No tin resultado ainda",
   },
 
   en: {
@@ -127,17 +100,17 @@ const translations = {
     title1: "Choose your numbers.",
     title2: "Play along.",
     subtitle:
-      "Enter your numbers and stake in euros for each number, then review your selection.",
+      "Choose your own 4-, 3- or 2-digit numbers and set the stake for each number.",
     playNow: "Play now",
     yourNumbers: "Your numbers",
-    numberHelp:
-      "Enter a 4-digit number. The last 3 and 2 digits are automatically suggested.",
+    help:
+      "Enter your numbers and stake. A 4-digit number automatically suggests its last 3 and 2 digits.",
     four: "4 digits",
     three: "3 digits",
     two: "2 digits",
     number: "Number",
     stake: "Stake",
-    addRow: "+ Add row",
+    add: "+ Number",
     overview: "My play overview",
     noNumbers: "No complete numbers with a stake yet.",
     game: "Game",
@@ -147,128 +120,145 @@ const translations = {
     first: "1st prize",
     second: "2nd prize",
     third: "3rd prize",
-    rulesTitle: "How does it work?",
-    rulesIntro:
-      "Here we explain how to play, how a number wins and how winnings are calculated.",
-    chooseTitle: "Choose your numbers",
-    chooseText:
-      "You can play 4-, 3- and 2-digit numbers and choose the stake for each number.",
-    winTitle: "Check the result",
-    winText:
-      "After the draw, your played numbers are compared with the official result.",
-    prizeTitle: "View your winnings",
-    prizeText:
-      "When a number wins, your winnings are calculated from your stake and shown in your account.",
-    prizeTable: "Prize table",
-    prizeNote:
-      "The final payout amounts will be added here once the prize table has been finalized.",
-    remove: "Remove row",
+    noResult: "No result yet",
   },
 };
-
-let nextId = 2;
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("nl");
 
-  const [rows, setRows] = useState<PlayRow[]>([
-    {
-      id: 1,
-      four: emptyPlay(),
-      three: emptyPlay(),
-      two: emptyPlay(),
-    },
-  ]);
+  const [games, setGames] = useState<Games>({
+    4: [createPlay()],
+    3: [createPlay()],
+    2: [createPlay()],
+  });
 
   const t = translations[language];
 
-  function addRow() {
-    setRows((current) => [
+  function addNumber(type: GameType) {
+    setGames((current) => ({
       ...current,
-      {
-        id: nextId++,
-        four: emptyPlay(),
-        three: emptyPlay(),
-        two: emptyPlay(),
-      },
-    ]);
+      [type]: [...current[type], createPlay()],
+    }));
   }
 
-  function removeRow(id: number) {
-    setRows((current) => {
-      if (current.length === 1) {
-        return [
-          {
-            id: current[0].id,
-            four: emptyPlay(),
-            three: emptyPlay(),
-            two: emptyPlay(),
-          },
-        ];
+  function removeNumber(type: GameType, id: number) {
+    setGames((current) => {
+      const group = current[type];
+
+      if (group.length === 1) {
+        return {
+          ...current,
+          [type]: [
+            {
+              ...group[0],
+              number: "",
+              stake: "",
+              suggestedFrom: undefined,
+            },
+          ],
+        };
       }
 
-      return current.filter((row) => row.id !== id);
+      return {
+        ...current,
+        [type]: group.filter((play) => play.id !== id),
+      };
     });
   }
 
   function updateNumber(
-    rowId: number,
-    type: "four" | "three" | "two",
+    type: GameType,
+    id: number,
     value: string
   ) {
-    const maxLength =
-      type === "four" ? 4 : type === "three" ? 3 : 2;
+    const clean = value
+      .replace(/\D/g, "")
+      .slice(0, type);
 
-    const clean = value.replace(/\D/g, "").slice(0, maxLength);
+    setGames((current) => {
+      const updated: Games = {
+        4: current[4].map((p) => ({ ...p })),
+        3: current[3].map((p) => ({ ...p })),
+        2: current[2].map((p) => ({ ...p })),
+      };
 
-    setRows((current) =>
-      current.map((row) => {
-        if (row.id !== rowId) return row;
+      const play = updated[type].find((p) => p.id === id);
 
-        if (type === "four") {
-          let three = row.three;
-          let two = row.two;
+      if (!play) return current;
 
-          if (!three.manual) {
-            three = {
-              ...three,
-              number: clean.length === 4 ? clean.slice(-3) : "",
-            };
-          }
+      play.number = clean;
 
-          if (!two.manual) {
-            two = {
-              ...two,
-              number: clean.length === 4 ? clean.slice(-2) : "",
-            };
-          }
+      /*
+       * Bij 4 cijfers:
+       * zoek per groep naar een bestaande suggestie van
+       * dit nummer. Bestaat die niet, gebruik dan eerst
+       * een lege regel. Anders maken we een nieuwe regel.
+       */
+      if (type === 4) {
+        updateSuggestion(updated, 3, id, clean);
+        updateSuggestion(updated, 2, id, clean);
+      } else {
+        // Zodra gebruiker zelf wijzigt, is het geen
+        // automatische suggestie meer.
+        play.suggestedFrom = undefined;
+      }
 
-          return {
-            ...row,
-            four: {
-              ...row.four,
-              number: clean,
-            },
-            three,
-            two,
-          };
-        }
+      return updated;
+    });
+  }
 
-        return {
-          ...row,
-          [type]: {
-            ...row[type],
-            number: clean,
-            manual: true,
-          },
-        };
-      })
+  function updateSuggestion(
+    games: Games,
+    type: 3 | 2,
+    sourceId: number,
+    fourDigitValue: string
+  ) {
+    const suggestion =
+      fourDigitValue.length === 4
+        ? fourDigitValue.slice(-type)
+        : "";
+
+    const existing = games[type].find(
+      (play) => play.suggestedFrom === sourceId
     );
+
+    if (existing) {
+      existing.number = suggestion;
+
+      if (!suggestion && !existing.stake) {
+        existing.suggestedFrom = undefined;
+      }
+
+      return;
+    }
+
+    if (!suggestion) return;
+
+    const empty = games[type].find(
+      (play) =>
+        play.number === "" &&
+        play.stake === "" &&
+        play.suggestedFrom === undefined
+    );
+
+    if (empty) {
+      empty.number = suggestion;
+      empty.suggestedFrom = sourceId;
+      return;
+    }
+
+    games[type].push({
+      id: nextId++,
+      number: suggestion,
+      stake: "",
+      suggestedFrom: sourceId,
+    });
   }
 
   function updateStake(
-    rowId: number,
-    type: "four" | "three" | "two",
+    type: GameType,
+    id: number,
     value: string
   ) {
     let clean = value.replace(/[^0-9,.]/g, "");
@@ -288,19 +278,14 @@ export default function Home() {
       clean = `${before},${after}`;
     }
 
-    setRows((current) =>
-      current.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              [type]: {
-                ...row[type],
-                stake: clean,
-              },
-            }
-          : row
-      )
-    );
+    setGames((current) => ({
+      ...current,
+      [type]: current[type].map((play) =>
+        play.id === id
+          ? { ...play, stake: clean }
+          : play
+      ),
+    }));
   }
 
   function amount(value: string) {
@@ -310,39 +295,30 @@ export default function Home() {
 
   const selected = useMemo(() => {
     const result: {
-      digits: number;
+      id: number;
+      digits: GameType;
       number: string;
       stake: number;
     }[] = [];
 
-    rows.forEach((row) => {
-      if (row.four.number.length === 4 && amount(row.four.stake) > 0) {
-        result.push({
-          digits: 4,
-          number: row.four.number,
-          stake: amount(row.four.stake),
-        });
-      }
-
-      if (row.three.number.length === 3 && amount(row.three.stake) > 0) {
-        result.push({
-          digits: 3,
-          number: row.three.number,
-          stake: amount(row.three.stake),
-        });
-      }
-
-      if (row.two.number.length === 2 && amount(row.two.stake) > 0) {
-        result.push({
-          digits: 2,
-          number: row.two.number,
-          stake: amount(row.two.stake),
-        });
-      }
+    ([4, 3, 2] as GameType[]).forEach((type) => {
+      games[type].forEach((play) => {
+        if (
+          play.number.length === type &&
+          amount(play.stake) > 0
+        ) {
+          result.push({
+            id: play.id,
+            digits: type,
+            number: play.number,
+            stake: amount(play.stake),
+          });
+        }
+      });
     });
 
     return result;
-  }, [rows]);
+  }, [games]);
 
   const total = selected.reduce(
     (sum, play) => sum + play.stake,
@@ -361,7 +337,7 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <a className="logo" href="#">
+        <a className="logo" href="/">
           <span className="star">★</span>
 
           <div>
@@ -373,8 +349,13 @@ export default function Home() {
         <nav>
           <a href="#spelen">{t.play}</a>
           <a href="#uitslagen">{t.results}</a>
-          <a href="#uitleg">{t.how}</a>
-          <button className="accountLink">{t.account}</button>
+
+          {/* Dit wordt onze aparte spelregelpagina */}
+          <a href="/hoe-werkt-het">{t.how}</a>
+
+          <button className="accountLink">
+            {t.account}
+          </button>
 
           <select
             className="language"
@@ -421,105 +402,70 @@ export default function Home() {
             <div>
               <span className="eyebrow">{t.play}</span>
               <h2>{t.yourNumbers}</h2>
-              <p>{t.numberHelp}</p>
+              <p>{t.help}</p>
             </div>
           </div>
 
-          <div className="playTable">
-            <div className="playHead">
-              <GameHeading
-                title={t.four}
-                number={t.number}
-                stake={t.stake}
-              />
+          <div className="independentGames">
+            <GameColumn
+              type={4}
+              title={t.four}
+              numberLabel={t.number}
+              stakeLabel={t.stake}
+              addLabel={t.add}
+              plays={games[4]}
+              onAdd={() => addNumber(4)}
+              onRemove={(id) => removeNumber(4, id)}
+              onNumber={(id, value) =>
+                updateNumber(4, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(4, id, value)
+              }
+            />
 
-              <GameHeading
-                title={t.three}
-                number={t.number}
-                stake={t.stake}
-              />
+            <GameColumn
+              type={3}
+              title={t.three}
+              numberLabel={t.number}
+              stakeLabel={t.stake}
+              addLabel={t.add}
+              plays={games[3]}
+              onAdd={() => addNumber(3)}
+              onRemove={(id) => removeNumber(3, id)}
+              onNumber={(id, value) =>
+                updateNumber(3, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(3, id, value)
+              }
+            />
 
-              <GameHeading
-                title={t.two}
-                number={t.number}
-                stake={t.stake}
-              />
-
-              <span />
-            </div>
-
-            {rows.map((row, index) => (
-              <div className="playRow" key={row.id}>
-                <PlayInput
-                  label={t.four}
-                  digits={4}
-                  number={row.four.number}
-                  stake={row.four.stake}
-                  onNumber={(value) =>
-                    updateNumber(row.id, "four", value)
-                  }
-                  onStake={(value) =>
-                    updateStake(row.id, "four", value)
-                  }
-                />
-
-                <PlayInput
-                  label={t.three}
-                  digits={3}
-                  number={row.three.number}
-                  stake={row.three.stake}
-                  suggested={
-                    row.four.number.length === 4 &&
-                    !row.three.manual
-                  }
-                  onNumber={(value) =>
-                    updateNumber(row.id, "three", value)
-                  }
-                  onStake={(value) =>
-                    updateStake(row.id, "three", value)
-                  }
-                />
-
-                <PlayInput
-                  label={t.two}
-                  digits={2}
-                  number={row.two.number}
-                  stake={row.two.stake}
-                  suggested={
-                    row.four.number.length === 4 &&
-                    !row.two.manual
-                  }
-                  onNumber={(value) =>
-                    updateNumber(row.id, "two", value)
-                  }
-                  onStake={(value) =>
-                    updateStake(row.id, "two", value)
-                  }
-                />
-
-                <button
-                  className="removeRow"
-                  onClick={() => removeRow(row.id)}
-                  aria-label={`${t.remove} ${index + 1}`}
-                  title={t.remove}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-
-            <div className="addRowWrapper">
-              <button className="addRow" onClick={addRow}>
-                {t.addRow}
-              </button>
-            </div>
+            <GameColumn
+              type={2}
+              title={t.two}
+              numberLabel={t.number}
+              stakeLabel={t.stake}
+              addLabel={t.add}
+              plays={games[2]}
+              onAdd={() => addNumber(2)}
+              onRemove={(id) => removeNumber(2, id)}
+              onNumber={(id, value) =>
+                updateNumber(2, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(2, id, value)
+              }
+            />
           </div>
         </section>
 
         <section className="panel overviewPanel">
           <div className="overviewHeader">
             <div>
-              <span className="eyebrow">{t.overview}</span>
+              <span className="eyebrow">
+                {t.overview}
+              </span>
               <h2>{t.overview}</h2>
             </div>
 
@@ -541,10 +487,22 @@ export default function Home() {
                 <span>{t.stake}</span>
               </div>
 
-              {selected.map((play, index) => (
-                <div className="summaryRow" key={index}>
-                  <span>{play.digits} {language === "pap" ? "sifra" : language === "en" ? "digits" : "cijfers"}</span>
+              {selected.map((play) => (
+                <div
+                  className="summaryRow"
+                  key={`${play.digits}-${play.id}`}
+                >
+                  <span>
+                    {play.digits}{" "}
+                    {language === "pap"
+                      ? "sifra"
+                      : language === "en"
+                      ? "digits"
+                      : "cijfers"}
+                  </span>
+
                   <strong>{play.number}</strong>
+
                   <span>{euro(play.stake)}</span>
                 </div>
               ))}
@@ -561,53 +519,30 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="resultsSection" id="uitslagen">
+        <section
+          className="resultsSection"
+          id="uitslagen"
+        >
           <div className="sectionTitle">
-            <span className="eyebrow">{t.results}</span>
+            <span className="eyebrow">
+              {t.results}
+            </span>
             <h2>{t.latestResults}</h2>
           </div>
 
           <div className="resultsGrid">
-            <ResultCard title={t.first} />
-            <ResultCard title={t.second} />
-            <ResultCard title={t.third} />
-          </div>
-        </section>
-
-        <section className="rulesSection" id="uitleg">
-          <div className="sectionTitle">
-            <span className="eyebrow">{t.how}</span>
-            <h2>{t.rulesTitle}</h2>
-            <p>{t.rulesIntro}</p>
-          </div>
-
-          <div className="rulesGrid">
-            <article>
-              <span>01</span>
-              <h3>{t.chooseTitle}</h3>
-              <p>{t.chooseText}</p>
-            </article>
-
-            <article>
-              <span>02</span>
-              <h3>{t.winTitle}</h3>
-              <p>{t.winText}</p>
-            </article>
-
-            <article>
-              <span>03</span>
-              <h3>{t.prizeTitle}</h3>
-              <p>{t.prizeText}</p>
-            </article>
-          </div>
-
-          <div className="prizePanel">
-            <div>
-              <span className="eyebrow">{t.prizeTable}</span>
-              <h2>{t.prizeTable}</h2>
-            </div>
-
-            <p>{t.prizeNote}</p>
+            <ResultCard
+              title={t.first}
+              noResult={t.noResult}
+            />
+            <ResultCard
+              title={t.second}
+              noResult={t.noResult}
+            />
+            <ResultCard
+              title={t.third}
+              noResult={t.noResult}
+            />
           </div>
         </section>
       </div>
@@ -623,83 +558,100 @@ export default function Home() {
   );
 }
 
-function GameHeading({
+function GameColumn({
+  type,
   title,
-  number,
-  stake,
-}: {
-  title: string;
-  number: string;
-  stake: string;
-}) {
-  return (
-    <div className="gameHeading">
-      <strong>{title}</strong>
-
-      <div>
-        <span>{number}</span>
-        <span>{stake} €</span>
-      </div>
-    </div>
-  );
-}
-
-function PlayInput({
-  label,
-  digits,
-  number,
-  stake,
-  suggested = false,
+  numberLabel,
+  stakeLabel,
+  addLabel,
+  plays,
+  onAdd,
+  onRemove,
   onNumber,
   onStake,
 }: {
-  label: string;
-  digits: number;
-  number: string;
-  stake: string;
-  suggested?: boolean;
-  onNumber: (value: string) => void;
-  onStake: (value: string) => void;
+  type: GameType;
+  title: string;
+  numberLabel: string;
+  stakeLabel: string;
+  addLabel: string;
+  plays: Play[];
+  onAdd: () => void;
+  onRemove: (id: number) => void;
+  onNumber: (id: number, value: string) => void;
+  onStake: (id: number, value: string) => void;
 }) {
   return (
-    <div className="playGroup">
-      <span className="mobileLabel">{label}</span>
+    <div className="gameColumn">
+      <h3>{title}</h3>
 
-      <div className="numberAndStake">
-        <input
-          className={suggested ? "suggested" : ""}
-          type="text"
-          inputMode="numeric"
-          maxLength={digits}
-          placeholder={"0".repeat(digits)}
-          value={number}
-          onChange={(event) =>
-            onNumber(event.target.value)
-          }
-        />
-
-        <div className="moneyInput">
-          <span>€</span>
-
-          <input
-            type="text"
-            inputMode="decimal"
-            placeholder="0,00"
-            value={stake}
-            onChange={(event) =>
-              onStake(event.target.value)
-            }
-          />
-        </div>
+      <div className="columnLabels">
+        <span>{numberLabel}</span>
+        <span>{stakeLabel} €</span>
+        <span />
       </div>
+
+      <div className="columnRows">
+        {plays.map((play) => (
+          <div className="columnEntry" key={play.id}>
+            <input
+              className={
+                play.suggestedFrom
+                  ? "suggested"
+                  : ""
+              }
+              type="text"
+              inputMode="numeric"
+              maxLength={type}
+              placeholder={"0".repeat(type)}
+              value={play.number}
+              onChange={(event) =>
+                onNumber(play.id, event.target.value)
+              }
+            />
+
+            <div className="moneyInput">
+              <span>€</span>
+
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={play.stake}
+                onChange={(event) =>
+                  onStake(play.id, event.target.value)
+                }
+              />
+            </div>
+
+            <button
+              className="removeNumber"
+              onClick={() => onRemove(play.id)}
+              aria-label="Nummer verwijderen"
+              title="Nummer verwijderen"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <button
+        className="columnAddButton"
+        onClick={onAdd}
+      >
+        {addLabel}
+      </button>
     </div>
   );
 }
 
 function ResultCard({
   title,
+  noResult,
 }: {
   title: string;
+  noResult: string;
 }) {
   return (
     <article className="resultCard">
@@ -712,7 +664,7 @@ function ResultCard({
         <i>—</i>
       </strong>
 
-      <small>Nog geen uitslag</small>
+      <small>{noResult}</small>
     </article>
   );
 }
