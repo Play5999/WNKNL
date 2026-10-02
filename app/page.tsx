@@ -4,50 +4,79 @@ import { useMemo, useState } from "react";
 
 type Play = {
   id: number;
-  type: 2 | 3 | 4;
   number: string;
   stake: string;
 };
 
+type Plays = {
+  4: Play[];
+  3: Play[];
+  2: Play[];
+};
+
+let nextId = 10;
+
 export default function Home() {
-  const [plays, setPlays] = useState<Play[]>([
-    { id: 1, type: 4, number: "", stake: "" },
-    { id: 2, type: 3, number: "", stake: "" },
-    { id: 3, type: 2, number: "", stake: "" },
-  ]);
+  const [plays, setPlays] = useState<Plays>({
+    4: [{ id: 1, number: "", stake: "" }],
+    3: [{ id: 2, number: "", stake: "" }],
+    2: [{ id: 3, number: "", stake: "" }],
+  });
+
+  function addNumber(type: 2 | 3 | 4, number = "") {
+    setPlays((current) => ({
+      ...current,
+      [type]: [
+        ...current[type],
+        {
+          id: nextId++,
+          number,
+          stake: "",
+        },
+      ],
+    }));
+  }
+
+  function updatePlay(
+    type: 2 | 3 | 4,
+    id: number,
+    field: "number" | "stake",
+    value: string
+  ) {
+    setPlays((current) => ({
+      ...current,
+      [type]: current[type].map((play) => {
+        if (play.id !== id) return play;
+
+        if (field === "number") {
+          value = value.replace(/\D/g, "").slice(0, type);
+        }
+
+        return {
+          ...play,
+          [field]: value,
+        };
+      }),
+    }));
+  }
+
+  function numberAlreadyExists(type: 2 | 3, number: string) {
+    return plays[type].some((play) => play.number === number);
+  }
+
+  const allPlays = [...plays[4], ...plays[3], ...plays[2]];
+
+  const activePlays = allPlays.filter((play) => {
+    const stake = Number(play.stake.replace(",", "."));
+    return play.number !== "" && stake > 0;
+  });
 
   const total = useMemo(() => {
-    return plays.reduce((sum, play) => {
+    return allPlays.reduce((sum, play) => {
       const amount = Number(play.stake.replace(",", "."));
       return sum + (Number.isFinite(amount) ? amount : 0);
     }, 0);
   }, [plays]);
-
-  function updatePlay(id: number, field: "number" | "stake", value: string) {
-    setPlays((current) =>
-      current.map((play) => {
-        if (play.id !== id) return play;
-
-        if (field === "number") {
-          value = value.replace(/\D/g, "").slice(0, play.type);
-        }
-
-        return { ...play, [field]: value };
-      })
-    );
-  }
-
-  function addPlay(type: 2 | 3 | 4) {
-    setPlays((current) => [
-      ...current,
-      {
-        id: Date.now(),
-        type,
-        number: "",
-        stake: "",
-      },
-    ]);
-  }
 
   return (
     <main>
@@ -110,7 +139,7 @@ export default function Home() {
           <span>JOUW NUMMERS</span>
           <h2>Speel mee met de volgende trekking</h2>
           <p>
-            Kies zelf je nummers en bepaal per nummer hoeveel je wilt inzetten.
+            Kies je nummers en bepaal zelf hoeveel je per nummer wilt inzetten.
           </p>
         </div>
 
@@ -128,58 +157,201 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="columnLabels">
-              <span>Nummer</span>
-              <span>Jouw keuze</span>
-              <span>Inzet</span>
-            </div>
+            <div className="numberColumns">
+              {/* 4 CIJFERS */}
+              <div className="numberColumn">
+                <div className="columnTitle">
+                  <strong>4 CIJFERS</strong>
+                </div>
 
-            <div className="plays">
-              {plays.map((play) => (
-                <div className="playRow" key={play.id}>
-                  <div className="numberType">
-                    <strong>{play.type}</strong>
-                    <div>
-                      <b>{play.type} cijfers</b>
-                      <small>Exact nummer</small>
+                {plays[4].map((play) => {
+                  const complete = play.number.length === 4;
+                  const suggested3 = complete ? play.number.slice(-3) : "";
+                  const suggested2 = complete ? play.number.slice(-2) : "";
+
+                  return (
+                    <div className="fourNumberBlock" key={play.id}>
+                      <div className="numberStakeRow">
+                        <input
+                          className="numberInput"
+                          value={play.number}
+                          inputMode="numeric"
+                          maxLength={4}
+                          placeholder="0000"
+                          onChange={(event) =>
+                            updatePlay(
+                              4,
+                              play.id,
+                              "number",
+                              event.target.value
+                            )
+                          }
+                        />
+
+                        <div className="stakeInput">
+                          <span>€</span>
+                          <input
+                            value={play.stake}
+                            inputMode="decimal"
+                            placeholder="0,00"
+                            onChange={(event) =>
+                              updatePlay(
+                                4,
+                                play.id,
+                                "stake",
+                                event.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      {complete && (
+                        <div className="mobileSuggestions">
+                          <span>Suggesties:</span>
+                          <button
+                            disabled={numberAlreadyExists(3, suggested3)}
+                            onClick={() => addNumber(3, suggested3)}
+                          >
+                            + Speel {suggested3}
+                          </button>
+
+                          <button
+                            disabled={numberAlreadyExists(2, suggested2)}
+                            onClick={() => addNumber(2, suggested2)}
+                          >
+                            + Speel {suggested2}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  );
+                })}
 
-                  <input
-                    className="numberInput"
-                    type="text"
-                    inputMode="numeric"
-                    value={play.number}
-                    maxLength={play.type}
-                    placeholder={"0".repeat(play.type)}
-                    onChange={(event) =>
-                      updatePlay(play.id, "number", event.target.value)
-                    }
-                  />
+                <button
+                  className="addNumberButton"
+                  onClick={() => addNumber(4)}
+                >
+                  + nummer
+                </button>
+              </div>
 
-                  <div className="stakeInput">
-                    <span>€</span>
+              {/* 3 CIJFERS */}
+              <div className="numberColumn">
+                <div className="columnTitle">
+                  <strong>3 CIJFERS</strong>
+                </div>
+
+                {plays[3].map((play) => (
+                  <div className="numberStakeRow" key={play.id}>
                     <input
-                      type="text"
-                      inputMode="decimal"
-                      value={play.stake}
-                      placeholder="0,00"
+                      className="numberInput"
+                      value={play.number}
+                      inputMode="numeric"
+                      maxLength={3}
+                      placeholder="000"
                       onChange={(event) =>
-                        updatePlay(play.id, "stake", event.target.value)
+                        updatePlay(3, play.id, "number", event.target.value)
                       }
                     />
+
+                    <div className="stakeInput">
+                      <span>€</span>
+                      <input
+                        value={play.stake}
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        onChange={(event) =>
+                          updatePlay(3, play.id, "stake", event.target.value)
+                        }
+                      />
+                    </div>
                   </div>
+                ))}
+
+                {plays[4].map((play) => {
+                  if (play.number.length !== 4) return null;
+
+                  const suggestion = play.number.slice(-3);
+
+                  if (numberAlreadyExists(3, suggestion)) return null;
+
+                  return (
+                    <button
+                      key={`suggest3-${play.id}`}
+                      className="suggestionButton"
+                      onClick={() => addNumber(3, suggestion)}
+                    >
+                      ↳ + Speel {suggestion}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="addNumberButton"
+                  onClick={() => addNumber(3)}
+                >
+                  + nummer
+                </button>
+              </div>
+
+              {/* 2 CIJFERS */}
+              <div className="numberColumn">
+                <div className="columnTitle">
+                  <strong>2 CIJFERS</strong>
                 </div>
-              ))}
-            </div>
 
-            <div className="addNumbers">
-              <span>Nummer toevoegen:</span>
+                {plays[2].map((play) => (
+                  <div className="numberStakeRow" key={play.id}>
+                    <input
+                      className="numberInput"
+                      value={play.number}
+                      inputMode="numeric"
+                      maxLength={2}
+                      placeholder="00"
+                      onChange={(event) =>
+                        updatePlay(2, play.id, "number", event.target.value)
+                      }
+                    />
 
-              <div>
-                <button onClick={() => addPlay(4)}>+ 4 cijfers</button>
-                <button onClick={() => addPlay(3)}>+ 3 cijfers</button>
-                <button onClick={() => addPlay(2)}>+ 2 cijfers</button>
+                    <div className="stakeInput">
+                      <span>€</span>
+                      <input
+                        value={play.stake}
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        onChange={(event) =>
+                          updatePlay(2, play.id, "stake", event.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                {plays[4].map((play) => {
+                  if (play.number.length !== 4) return null;
+
+                  const suggestion = play.number.slice(-2);
+
+                  if (numberAlreadyExists(2, suggestion)) return null;
+
+                  return (
+                    <button
+                      key={`suggest2-${play.id}`}
+                      className="suggestionButton"
+                      onClick={() => addNumber(2, suggestion)}
+                    >
+                      ↳ + Speel {suggestion}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="addNumberButton"
+                  onClick={() => addNumber(2)}
+                >
+                  + nummer
+                </button>
               </div>
             </div>
           </div>
@@ -189,16 +361,8 @@ export default function Home() {
             <h3>Jouw deelname</h3>
 
             <div className="summaryLine">
-              <span>Aantal nummers</span>
-              <strong>
-                {
-                  plays.filter(
-                    (play) =>
-                      play.number.length === play.type &&
-                      Number(play.stake.replace(",", ".")) > 0
-                  ).length
-                }
-              </strong>
+              <span>Gespeelde nummers</span>
+              <strong>{activePlays.length}</strong>
             </div>
 
             <div className="summaryLine">
@@ -207,7 +371,7 @@ export default function Home() {
             </div>
 
             <div className="summaryTotal">
-              <span>Totaal</span>
+              <span>Totale inzet</span>
               <strong>
                 €{" "}
                 {total.toLocaleString("nl-NL", {
@@ -256,26 +420,38 @@ export default function Home() {
       <section className="howSection" id="uitleg">
         <div className="sectionHeading">
           <span>HOE WERKT HET?</span>
-          <h2>Spelen in drie stappen</h2>
+          <h2>Zo speel je WNKNL</h2>
+          <p>
+            Kies je nummers, bepaal je inzet en controleer na de trekking
+            of jouw nummer gewonnen heeft.
+          </p>
         </div>
 
         <div className="steps">
           <div>
             <b>01</b>
             <h3>Kies je nummer</h3>
-            <p>Speel een 2-, 3- of 4-cijferig nummer.</p>
+            <p>
+              Kies één of meerdere 4-, 3- of 2-cijferige nummers.
+            </p>
           </div>
 
           <div>
             <b>02</b>
-            <h3>Bepaal je inzet</h3>
-            <p>Je kiest zelf hoeveel je per nummer wilt inzetten.</p>
+            <h3>Kies je inzet</h3>
+            <p>
+              Elk nummer heeft zijn eigen inzet. Je totale inzet wordt
+              automatisch voor je berekend.
+            </p>
           </div>
 
           <div>
             <b>03</b>
-            <h3>Bekijk de uitslag</h3>
-            <p>Na de trekking zie je de uitslag in je account.</p>
+            <h3>Controleer de uitslag</h3>
+            <p>
+              Na de trekking worden jouw gespeelde nummers vergeleken met
+              de uitslag.
+            </p>
           </div>
         </div>
       </section>
@@ -283,6 +459,7 @@ export default function Home() {
       <footer>
         <div className="brand footerBrand">
           <div className="brandMark">W</div>
+
           <div>
             <strong>WNKNL</strong>
             <span>Wegi Number Kòrsou</span>
