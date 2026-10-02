@@ -1,668 +1,141 @@
-* {
-  box-sizing: border-box;
+/* Speelregels op één horizontale rij */
+
+.playTable {
+  width: 100%;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: #f5f7fa;
-  color: #10213a;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-button,
-input {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* HEADER */
-
-.siteHeader {
-  height: 78px;
-  padding: 0 5%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
-  background: #ffffff;
-  border-bottom: 1px solid #e4e9ef;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  color: #10213a;
-  text-decoration: none;
-}
-
-.brandMark {
-  width: 42px;
-  height: 42px;
+.playTableHeader,
+.completePlayRow {
   display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: #0786d1;
-  color: #fff;
-  font-size: 21px;
-  font-weight: 900;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    38px;
+  gap: 14px;
 }
 
-.brand strong,
-.brand span {
-  display: block;
-}
-
-.brand strong {
-  font-size: 20px;
-}
-
-.brand span {
-  margin-top: 2px;
-  color: #77869a;
-  font-size: 10px;
-}
-
-.desktopNav {
-  display: flex;
-  gap: 30px;
-}
-
-.desktopNav a {
-  color: #405168;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.desktopNav a:hover {
-  color: #0786d1;
-}
-
-.accountButton {
-  padding: 11px 18px;
-  border: 1px solid #d6dfe8;
-  border-radius: 9px;
-  background: #fff;
-  color: #10213a;
-  font-weight: 700;
-}
-
-/* HERO */
-
-.hero {
-  min-height: 400px;
-  padding: 60px 8%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 60px;
-  overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(28, 170, 235, 0.3),
-      transparent 30%
-    ),
-    linear-gradient(120deg, #061b36, #07385f 65%, #0873aa);
-  color: #fff;
-}
-
-.heroText {
-  max-width: 650px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffd451;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.3px;
-}
-
-.hero h1 {
-  margin: 18px 0;
-  font-size: clamp(46px, 6vw, 72px);
-  line-height: 1;
-  letter-spacing: -3px;
-}
-
-.hero h1 span {
-  color: #55c9ff;
-}
-
-.hero p {
-  max-width: 560px;
-  margin: 0 0 30px;
-  color: #d8e7f2;
-  font-size: 18px;
-  line-height: 1.6;
-}
-
-.heroButtons {
-  display: flex;
-  gap: 12px;
-}
-
-.primaryButton,
-.secondaryButton {
-  display: inline-block;
-  padding: 14px 22px;
-  border-radius: 9px;
-  text-decoration: none;
-  font-weight: 800;
-}
-
-.primaryButton {
-  background: #ffd451;
-  color: #10213a;
-}
-
-.secondaryButton {
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-}
-
-.heroNumbers {
-  display: flex;
-  gap: 10px;
-  transform: rotate(-4deg);
-}
-
-.heroNumbers span {
-  width: 72px;
-  height: 92px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: #fff;
-  color: #07385f;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.22);
-  font-size: 40px;
-  font-weight: 900;
-}
-
-.heroNumbers span:nth-child(2),
-.heroNumbers span:nth-child(4) {
-  transform: translateY(17px);
-}
-
-/* GENERAL */
-
-.playArea,
-.resultsSection,
-.howSection {
-  padding: 75px 5%;
-}
-
-.sectionHeading {
-  max-width: 700px;
-  margin: 0 auto 35px;
-  text-align: center;
-}
-
-.sectionHeading > span,
-.smallLabel {
-  color: #0786d1;
+.playTableHeader {
+  padding: 14px 20px;
+  background: #f7f9fb;
+  border-bottom: 1px solid #e7edf2;
+  color: #637387;
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.7px;
 }
 
-.sectionHeading h2 {
-  margin: 8px 0 10px;
-  font-size: 34px;
-  letter-spacing: -1px;
-}
-
-.sectionHeading p {
-  margin: 0;
-  color: #718096;
-  line-height: 1.6;
-}
-
-/* PLAY AREA */
-
-.playLayout {
-  max-width: 1250px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 285px;
-  gap: 22px;
+.completePlayRow {
+  padding: 18px 20px;
   align-items: start;
+  border-bottom: 1px solid #edf1f4;
 }
 
-.playCard,
-.summaryCard {
+.completePlayRow .numberStakeRow {
+  grid-template-columns:
+    minmax(60px, 1.15fr)
+    minmax(68px, 0.85fr);
+  margin: 0;
+}
+
+.suggestedNumber {
+  background: #f2faff;
+  border-color: #a9d9f2;
+}
+
+.suggestedLabel {
+  display: block;
+  margin-top: 5px;
+  color: #0786d1;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.deleteRowButton {
+  width: 34px;
+  height: 34px;
+  margin-top: 7px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #eadadd;
+  border-radius: 8px;
   background: #fff;
-  border: 1px solid #e2e8ee;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(17, 44, 73, 0.06);
+  color: #bd4c58;
+  font-size: 20px;
+  line-height: 1;
 }
 
-.playCard {
-  overflow: hidden;
+.deleteRowButton:hover {
+  background: #fff5f6;
+  border-color: #dcaeb4;
 }
 
-.playCardHeader {
-  padding: 23px 25px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e9edf1;
+.addRowArea {
+  padding: 18px 20px 22px;
 }
 
-.playCardHeader h3,
-.summaryCard h3 {
-  margin: 5px 0 0;
-  font-size: 21px;
-}
-
-.drawStatus {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #2f8b58;
+.addRowButton {
+  padding: 11px 16px;
+  border: 1px solid #cce3f1;
+  border-radius: 8px;
+  background: #f4fbff;
+  color: #0786d1;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.statusDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #40b970;
+.addRowButton:hover {
+  background: #eaf7ff;
 }
 
-/* THREE NUMBER COLUMNS */
+/* Oude kolomopmaak niet meer gebruiken */
 
 .numberColumns {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.numberColumn {
-  min-width: 0;
-  padding: 24px 18px;
-  border-right: 1px solid #e7edf2;
-}
-
-.numberColumn:last-child {
-  border-right: 0;
-}
-
-.columnTitle {
-  margin-bottom: 15px;
-  color: #10213a;
-  font-size: 12px;
-  letter-spacing: 0.8px;
-}
-
-.numberStakeRow {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(90px, 1.25fr) minmax(80px, 0.85fr);
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.numberInput {
-  width: 100%;
-  min-width: 0;
-  height: 48px;
-  padding: 0 10px;
-  border: 1px solid #d5dee7;
-  border-radius: 9px;
-  outline: none;
-  background: #fbfcfd;
-  color: #10213a;
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  text-align: center;
-}
-
-.stakeInput {
-  width: 100%;
-  min-width: 0;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  border: 1px solid #d5dee7;
-  border-radius: 9px;
-  background: #fbfcfd;
-  overflow: hidden;
-}
-
-.stakeInput > span {
-  padding-left: 9px;
-  color: #637387;
-  font-weight: 700;
-}
-
-.stakeInput input {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-  padding: 0 7px;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #10213a;
-}
-
-.numberInput:focus,
-.stakeInput:focus-within {
-  border-color: #0786d1;
-  box-shadow: 0 0 0 3px rgba(7, 134, 209, 0.1);
-}
-
-.addNumberButton {
-  margin-top: 7px;
-  padding: 7px 0;
-  border: 0;
-  background: transparent;
-  color: #0786d1;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.suggestionButton {
-  display: block;
-  margin: 3px 0 8px;
-  padding: 7px 9px;
-  border: 1px solid #d6e9f5;
-  border-radius: 7px;
-  background: #f3faff;
-  color: #087fc0;
-  font-size: 11px;
-  font-weight: 800;
-  text-align: left;
-}
-
-.fourNumberBlock {
-  margin-bottom: 3px;
-}
-
-.mobileSuggestions {
   display: none;
 }
 
-/* SUMMARY */
-
-.summaryCard {
-  padding: 24px;
-  position: sticky;
-  top: 100px;
-}
-
-.summaryLine {
-  padding: 16px 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  border-bottom: 1px solid #edf0f3;
-  color: #65758a;
-  font-size: 13px;
-}
-
-.summaryLine strong {
-  color: #10213a;
-}
-
-.summaryTotal {
-  padding: 22px 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.summaryTotal span {
-  font-weight: 700;
-}
-
-.summaryTotal strong {
-  font-size: 24px;
-}
-
-.continueButton {
-  width: 100%;
-  padding: 15px 16px;
-  display: flex;
-  justify-content: space-between;
-  border: 0;
-  border-radius: 9px;
-  background: #0786d1;
-  color: #fff;
-  font-weight: 800;
-}
-
-.loginNote {
-  margin: 12px 0 0;
-  color: #8794a5;
-  font-size: 10px;
-  line-height: 1.5;
-  text-align: center;
-}
-
-/* RESULTS */
-
-.resultsSection {
-  background: #fff;
-}
-
-.resultCards {
-  max-width: 900px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.resultCard {
-  padding: 25px;
-  border: 1px solid #e3e9ef;
-  border-radius: 14px;
-  background: #fff;
-  text-align: center;
-}
-
-.resultCard span {
-  color: #77869a;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.resultCard div {
-  margin-top: 14px;
-  color: #0786d1;
-  font-size: 26px;
-  font-weight: 900;
-  letter-spacing: 4px;
-}
-
-/* HOW */
-
-.steps {
-  max-width: 1000px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.steps > div {
-  padding: 28px;
-  background: #fff;
-  border: 1px solid #e3e9ef;
-  border-radius: 14px;
-}
-
-.steps b {
-  color: #0786d1;
-  font-size: 23px;
-}
-
-.steps h3 {
-  margin: 14px 0 8px;
-}
-
-.steps p {
-  margin: 0;
-  color: #77869a;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* FOOTER */
-
-footer {
-  padding: 30px 5%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #061b36;
-  color: #fff;
-}
-
-.footerBrand {
-  color: #fff;
-}
-
-footer p {
-  color: #9fb0c1;
-  font-size: 12px;
-}
-
-/* TABLET */
-
-@media (max-width: 950px) {
-  .desktopNav {
+@media (max-width: 800px) {
+  .playTableHeader {
     display: none;
   }
 
-  .heroNumbers {
-    display: none;
-  }
-
-  .playLayout {
+  .completePlayRow {
     grid-template-columns: 1fr;
-  }
-
-  .summaryCard {
-    position: static;
-  }
-}
-
-/* MOBILE */
-
-@media (max-width: 700px) {
-  .siteHeader {
-    height: 70px;
-    padding: 0 15px;
-  }
-
-  .brand span {
-    display: none;
-  }
-
-  .accountButton {
-    padding: 9px 12px;
-    font-size: 12px;
-  }
-
-  .hero {
-    min-height: auto;
-    padding: 45px 20px 50px;
-  }
-
-  .hero h1 {
-    font-size: 43px;
-    letter-spacing: -2px;
-  }
-
-  .hero p {
-    font-size: 15px;
-  }
-
-  .playArea,
-  .resultsSection,
-  .howSection {
-    padding: 55px 12px;
-  }
-
-  .sectionHeading h2 {
-    font-size: 28px;
-  }
-
-  .numberColumns {
-    grid-template-columns: 1fr;
-  }
-
-  .numberColumn {
+    gap: 12px;
     padding: 20px 18px;
-    border-right: 0;
-    border-bottom: 1px solid #e7edf2;
   }
 
-  .numberColumn:last-child {
-    border-bottom: 0;
+  .completePlayRow > div::before {
+    display: block;
+    margin-bottom: 6px;
+    color: #637387;
+    font-size: 10px;
+    font-weight: 900;
   }
 
-  .numberStakeRow {
+  .completePlayRow > div:nth-child(1)::before {
+    content: "4 CIJFERS";
+  }
+
+  .completePlayRow > div:nth-child(2)::before {
+    content: "3 CIJFERS";
+  }
+
+  .completePlayRow > div:nth-child(3)::before {
+    content: "2 CIJFERS";
+  }
+
+  .completePlayRow .numberStakeRow {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   }
 
-  .mobileSuggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin: 3px 0 10px;
-  }
-
-  .mobileSuggestions > span {
+  .deleteRowButton {
     width: 100%;
-    color: #8794a5;
-    font-size: 10px;
+    margin-top: 3px;
+    font-size: 13px;
   }
 
-  .mobileSuggestions button {
-    padding: 6px 9px;
-    border: 1px solid #d6e9f5;
-    border-radius: 7px;
-    background: #f3faff;
-    color: #087fc0;
-    font-size: 11px;
-    font-weight: 800;
-  }
-
-  .mobileSuggestions button:disabled {
-    opacity: 0.45;
-  }
-
-  .resultCards,
-  .steps {
-    grid-template-columns: 1fr;
-  }
-
-  footer {
-    gap: 20px;
-    flex-direction: column;
-    align-items: flex-start;
+  .deleteRowButton::after {
+    content: " Rij verwijderen";
   }
 }
