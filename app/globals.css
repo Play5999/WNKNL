@@ -1,788 +1,17 @@
-:root {
-  --navy: #082f78;
-  --blue: #0057bd;
-  --bright-blue: #0788d1;
-  --yellow: #f9df00;
-
-  --background: #f4f7fb;
-  --surface: #ffffff;
-  --surface-soft: #f8fafc;
-
-  --text: #142a48;
-  --muted: #718096;
-
-  --border: #dce5ef;
-  --border-soft: #edf1f5;
-
-  --danger: #c74a58;
-
-  --container: 1180px;
-  --page-padding: 30px;
-
-  --radius: 14px;
-  --shadow: 0 7px 24px rgba(8, 47, 120, 0.05);
-}
-
 /* =========================
-   BASIS
+   PRIJZEN / TREKKING
+   Herbruikbaar sitebreed
    ========================= */
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-
-  background: var(--background);
-  color: var(--text);
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-.siteContainer {
-  width: min(
-    var(--container),
-    calc(100% - var(--page-padding))
-  );
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.pageContent {
-  padding-top: 22px;
-  padding-bottom: 55px;
-}
-
-/* =========================
-   CENTRALE HEADER
-   ========================= */
-
-.siteHeader {
-  background: var(--navy);
-  color: white;
-
-  border-bottom: 4px solid var(--yellow);
-}
-
-.headerInner {
-  min-height: 68px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 30px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-}
-
-.brandStar {
-  color: var(--yellow);
-  font-size: 22px;
-}
-
-.brand div {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand strong {
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.brand small {
-  margin-top: 2px;
-
-  color: var(--yellow);
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 2px;
-}
-
-.mainNav {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-}
-
-.mainNav > a {
-  padding: 9px 10px;
-
-  border-radius: 6px;
-
-  color: rgba(255, 255, 255, 0.9);
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.mainNav > a:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.accountButton {
-  padding: 9px 13px;
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 7px;
-
-  background: transparent;
-  color: white;
-
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.languageSelect {
-  height: 36px;
-
-  padding: 0 9px;
-
-  border: 0;
-  border-radius: 6px;
-
-  background: white;
-  color: var(--navy);
-
-  font-weight: 800;
-}
-
-/* =========================
-   ALGEMENE PAGINA COMPONENTEN
-   ========================= */
-
-.contentCard {
-  margin-bottom: 18px;
-
-  overflow: hidden;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow);
-}
-
-.sectionHeading {
-  padding: 22px 24px 16px;
-}
-
-.sectionHeading small,
-.overviewHeader small {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: var(--blue);
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 1.3px;
-}
-
-.sectionHeading h2,
-.overviewHeader h2 {
-  margin: 0;
-
-  font-size: 22px;
-}
-
-.sectionHeading p {
-  max-width: 720px;
-
-  margin: 7px 0 0;
-
-  color: var(--muted);
-
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.noCardHeading {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.yellowButton,
-.primaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 11px 17px;
-
-  border: 0;
-  border-radius: 7px;
-
-  background: var(--yellow);
-  color: var(--navy);
-
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.primaryButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-/* =========================
-   HERO
-   ========================= */
-
-.hero {
-  min-height: 290px;
-
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 40px;
-
-  padding: 38px 45px;
-  margin-bottom: 20px;
-
-  overflow: hidden;
-
-  border-radius: 16px;
-
-  background:
-    linear-gradient(
-      120deg,
-      var(--navy),
-      var(--blue)
-    );
-
-  color: white;
-
-  box-shadow:
-    0 10px 30px rgba(8, 47, 120, 0.08);
-}
-
-.heroContent {
-  position: relative;
-  z-index: 2;
-}
-
-.heroTag {
-  display: inline-block;
-
-  padding: 6px 11px;
-
-  border-radius: 20px;
-
-  background: var(--yellow);
-  color: var(--navy);
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 1px;
-}
-
-.hero h1 {
-  margin: 13px 0 10px;
-
-  color: white;
-
-  font-size: clamp(38px, 5vw, 58px);
-  line-height: 0.98;
-
-  letter-spacing: -2px;
-}
-
-.hero h1 span {
-  display: block;
-
-  margin-top: 6px;
-
-  color: var(--yellow);
-}
-
-.hero p {
-  max-width: 600px;
-
-  margin: 0 0 21px;
-
-  color: rgba(255, 255, 255, 0.82);
-
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.heroNumbers {
-  display: flex;
-
-  gap: 7px;
-}
-
-.heroNumbers span {
-  width: 52px;
-  height: 62px;
-
+.drawExplanation,
+.examplePayoutGrid {
   display: grid;
-  place-items: center;
-
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 8px;
-
-  background: rgba(255, 255, 255, 0.12);
-
-  color: white;
-
-  font-size: 25px;
-  font-weight: 900;
-}
-
-.heroNumbers .yellowNumber {
-  border-color: var(--yellow);
-  color: var(--yellow);
-}
-
-/* =========================
-   SPELEN
-   ========================= */
-
-.gameColumns {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 12px;
-
-  padding: 5px 18px 20px;
-}
-
-.gameColumn {
-  min-width: 0;
-
-  padding: 15px;
-
-  border: 1px solid #e3eaf2;
-  border-radius: 11px;
-
-  background: var(--surface-soft);
-}
-
-.gameColumn h3 {
-  margin: 0 0 12px;
-
-  color: var(--navy);
-
-  font-size: 14px;
-  text-transform: uppercase;
-}
-
-.inputLabels,
-.numberRow {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1.25fr)
-    minmax(0, 0.85fr)
-    25px;
-
-  gap: 6px;
-}
-
-.inputLabels {
-  margin-bottom: 5px;
-
-  color: var(--muted);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-}
-
-.numberRows {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.numberRow {
-  align-items: center;
-}
-
-.numberInput {
-  width: 100%;
-  min-width: 0;
-  height: 41px;
-
-  padding: 0 8px;
-
-  border: 1px solid #cbd6e2;
-  border-radius: 7px;
-
-  outline: none;
-
-  background: white;
-  color: var(--navy);
-
-  font-size: 16px;
-  font-weight: 900;
-
-  letter-spacing: 2px;
-  text-align: center;
-}
-
-.numberInput:focus {
-  border-color: var(--bright-blue);
-
-  box-shadow:
-    0 0 0 2px rgba(7, 136, 209, 0.1);
-}
-
-.suggestedInput {
-  border-color: #9ed4f2;
-
-  background: #f0f9ff;
-}
-
-.stakeInput {
-  height: 41px;
-
-  display: flex;
-  align-items: center;
-
-  overflow: hidden;
-
-  border: 1px solid #cbd6e2;
-  border-radius: 7px;
-
-  background: white;
-}
-
-.stakeInput span {
-  padding-left: 8px;
-
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-.stakeInput input {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-
-  padding: 0 5px;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  font-size: 12px;
-}
-
-.deleteButton {
-  width: 25px;
-  height: 25px;
-
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: 0;
-  border-radius: 50%;
-
-  background: transparent;
-  color: #9aa7b6;
-
-  font-size: 17px;
-}
-
-.deleteButton:hover {
-  background: #fff0f1;
-  color: var(--danger);
-}
-
-.addButton {
-  width: 100%;
-
-  margin-top: 10px;
-  padding: 9px;
-
-  border: 1px solid #c7dcec;
-  border-radius: 7px;
-
-  background: #edf7ff;
-  color: var(--blue);
-
-  font-size: 11px;
-  font-weight: 900;
-}
-
-/* =========================
-   OVERZICHT
-   ========================= */
-
-.overviewCard {
-  padding: 22px 24px;
-}
-
-.overviewHeader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  margin-bottom: 17px;
-}
-
-.totalStake {
-  text-align: right;
-}
-
-.totalStake span {
-  display: block;
-
-  color: var(--muted);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-}
-
-.totalStake strong {
-  color: var(--navy);
-
-  font-size: 26px;
-}
-
-.emptyState {
-  padding: 17px;
-
-  border: 1px dashed #cad7e4;
-  border-radius: 8px;
-
-  background: var(--surface-soft);
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-.summaryList {
-  overflow: hidden;
-
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.summaryRow {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr 1fr;
-
-  padding: 11px 13px;
-
-  border-bottom: 1px solid var(--border-soft);
-
-  font-size: 12px;
-}
-
-.summaryRow:last-child {
-  border-bottom: 0;
-}
-
-.summaryRow strong {
-  color: var(--blue);
-}
-
-.summaryRow span:last-child {
-  text-align: right;
-}
-
-.continueArea {
-  display: flex;
-  justify-content: flex-end;
-
-  margin-top: 15px;
-}
-
-/* =========================
-   UITSLAGEN
-   ========================= */
-
-.resultsSection {
-  padding-top: 20px;
-}
-
-.resultsGrid {
-  display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-.resultCard {
-  padding: 19px;
-
-  border: 1px solid var(--border);
-  border-radius: 11px;
-
-  background: white;
-
-  box-shadow: var(--shadow);
-}
-
-.resultCard > small {
-  color: var(--blue);
-
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.resultNumbers {
-  display: flex;
-
-  gap: 5px;
-
-  margin: 13px 0 8px;
-}
-
-.resultNumbers span {
-  width: 35px;
-  height: 42px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 6px;
-
-  background: var(--navy);
-  color: var(--yellow);
-
-  font-weight: 900;
-}
-
-.resultCard p {
-  margin: 0;
-
-  color: var(--muted);
-
-  font-size: 11px;
-}
-
-/* =========================
-   HOE WERKT HET + TOEKOMSTIGE PAGINA'S
-   ========================= */
-
-.standardPage {
-  padding-top: 22px;
-  padding-bottom: 55px;
-}
-
-.pageHero {
-  padding: 38px 42px;
-  margin-bottom: 20px;
-
-  border-radius: 16px;
-
-  background:
-    linear-gradient(
-      120deg,
-      var(--navy),
-      var(--blue)
-    );
-
-  color: white;
-
-  box-shadow: var(--shadow);
-}
-
-.pageHero h1 {
-  margin: 8px 0;
-
-  font-size: clamp(32px, 4vw, 48px);
-}
-
-.pageHero h1 span {
-  color: var(--yellow);
-}
-
-.pageHero p {
-  max-width: 700px;
-
-  margin: 0;
-
-  color: rgba(255, 255, 255, 0.8);
-
-  line-height: 1.6;
-}
-
-.standardSection {
-  padding: 24px;
-  margin-bottom: 18px;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-
-  background: white;
-
-  box-shadow: var(--shadow);
-}
-
-.standardSection h2 {
-  margin-top: 0;
-}
-
-.cardGrid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 12px;
-}
-
-.infoCard {
+.drawPrizeCard,
+.payoutExampleCard {
   padding: 20px;
 
   border: 1px solid var(--border);
@@ -791,154 +20,91 @@ button {
   background: var(--surface-soft);
 }
 
-.tableWrapper {
-  width: 100%;
+.prizePosition {
+  display: inline-block;
 
-  overflow-x: auto;
-}
+  margin-bottom: 12px;
+  padding: 5px 8px;
 
-.siteTable {
-  width: 100%;
+  border-radius: 5px;
 
-  border-collapse: collapse;
-}
-
-.siteTable th,
-.siteTable td {
-  padding: 14px 16px;
-
-  border-bottom: 1px solid var(--border-soft);
-
-  text-align: left;
-}
-
-.siteTable th {
   background: var(--navy);
-  color: white;
+  color: var(--yellow);
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
 }
 
-/* =========================
-   FOOTER
-   ========================= */
+.drawPrizeCard > strong {
+  display: block;
 
-.siteFooter {
-  background: var(--navy);
+  color: var(--navy);
 
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 28px;
+  letter-spacing: 3px;
 }
 
-.footerInner {
-  min-height: 85px;
+.drawPrizeCard p {
+  margin: 7px 0 0;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
+  color: var(--muted);
 
   font-size: 11px;
 }
 
-.footerInner strong {
-  color: white;
+.payoutTable td {
+  vertical-align: middle;
 }
 
-.footerInner strong span {
-  color: var(--yellow);
+.payoutTable td > small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--muted);
+
+  font-size: 10px;
 }
 
-/* =========================
-   TABLET
-   ========================= */
+.payoutTable td:not(:first-child) {
+  font-size: 16px;
+}
 
-@media (max-width: 850px) {
-  .headerInner {
-    padding: 12px 0;
+.payoutTable td strong {
+  color: var(--blue);
+}
 
-    align-items: flex-start;
-    flex-direction: column;
-  }
+.payoutExampleCard > span {
+  color: var(--muted);
 
-  .mainNav {
-    width: 100%;
+  font-size: 10px;
+  font-weight: 800;
+}
 
-    overflow-x: auto;
-  }
+.payoutExampleCard h3 {
+  margin: 7px 0 14px;
 
-  .gameColumns,
-  .cardGrid {
+  color: var(--navy);
+}
+
+.payoutCalculation {
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.payoutExampleCard > strong {
+  color: var(--blue);
+
+  font-size: 27px;
+}
+
+@media (max-width: 750px) {
+  .drawExplanation,
+  .examplePayoutGrid {
     grid-template-columns: 1fr;
-  }
-}
-
-/* =========================
-   MOBILE
-   ========================= */
-
-@media (max-width: 600px) {
-  :root {
-    --page-padding: 20px;
-  }
-
-  .pageContent,
-  .standardPage {
-    padding-top: 12px;
-    padding-bottom: 35px;
-  }
-
-  .mainNav {
-    gap: 2px;
-  }
-
-  .mainNav > a,
-  .accountButton {
-    padding: 7px;
-
-    white-space: nowrap;
-
-    font-size: 10px;
-  }
-
-  .hero,
-  .pageHero {
-    min-height: auto;
-
-    padding: 27px 20px;
-
-    border-radius: 12px;
-  }
-
-  .hero h1 {
-    font-size: 38px;
-  }
-
-  .heroNumbers {
-    display: none;
-  }
-
-  .gameColumns {
-    padding: 3px 10px 12px;
-
-    gap: 8px;
-  }
-
-  .gameColumn {
-    padding: 12px;
-  }
-
-  .overviewCard,
-  .standardSection {
-    padding: 18px;
-  }
-
-  .resultsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .footerInner {
-    padding: 20px 0;
-
-    align-items: flex-start;
-    flex-direction: column;
   }
 }
