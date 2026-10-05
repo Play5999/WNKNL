@@ -2,45 +2,173 @@
 
 import { useMemo, useState } from "react";
 
-type GameType = "4" | "3" | "2";
+type GameType = 4 | 3 | 2;
 
-export default function HowItWorks() {
-  const [game, setGame] = useState<GameType>("4");
-  const [stake, setStake] = useState("1");
+type Play = {
+  id: number;
+  number: string;
+  stake: string;
+};
 
-  /*
-    Deze multipliers vervangen we door de definitieve
-    officiële WNKNL-prijzentabel.
-  */
-  const multipliers: Record<GameType, number | null> = {
-    "4": null,
-    "3": null,
-    "2": null,
+type Games = {
+  4: Play[];
+  3: Play[];
+  2: Play[];
+};
+
+let nextId = 10;
+
+function newPlay(): Play {
+  return {
+    id: nextId++,
+    number: "",
+    stake: "",
   };
+}
 
-  const calculatedPrize = useMemo(() => {
-    const amount = Number(stake.replace(",", "."));
-    const multiplier = multipliers[game];
+export default function Home() {
+  const [games, setGames] = useState<Games>({
+    4: [newPlay()],
+    3: [newPlay()],
+    2: [newPlay()],
+  });
 
-    if (!Number.isFinite(amount) || amount <= 0 || multiplier === null) {
-      return null;
-    }
-
-    return amount * multiplier;
-  }, [game, stake]);
-
-  function euro(value: number) {
-    return new Intl.NumberFormat("nl-NL", {
-      style: "currency",
-      currency: "EUR",
-    }).format(value);
+  function addNumber(type: GameType) {
+    setGames((current) => ({
+      ...current,
+      [type]: [...current[type], newPlay()],
+    }));
   }
+
+  function removeNumber(type: GameType, id: number) {
+    setGames((current) => {
+      const remaining = current[type].filter(
+        (item) => item.id !== id
+      );
+
+      return {
+        ...current,
+        [type]:
+          remaining.length > 0
+            ? remaining
+            : [newPlay()],
+      };
+    });
+  }
+
+  function updateNumber(
+    type: GameType,
+    id: number,
+    value: string
+  ) {
+    const clean = value
+      .replace(/\D/g, "")
+      .slice(0, type);
+
+    setGames((current) => {
+      const updated: Games = {
+        4: current[4].map((item) => ({ ...item })),
+        3: current[3].map((item) => ({ ...item })),
+        2: current[2].map((item) => ({ ...item })),
+      };
+
+      const item = updated[type].find(
+        (entry) => entry.id === id
+      );
+
+      if (!item) return current;
+
+      item.number = clean;
+
+      /*
+        Bij 4 cijfers:
+        vul alleen een LEGE 3- en 2-cijferregel automatisch.
+      */
+      if (type === 4 && clean.length === 4) {
+        const three = updated[3].find(
+          (entry) =>
+            entry.number === "" &&
+            entry.stake === ""
+        );
+
+        const two = updated[2].find(
+          (entry) =>
+            entry.number === "" &&
+            entry.stake === ""
+        );
+
+        if (three) {
+          three.number = clean.slice(-3);
+        }
+
+        if (two) {
+          two.number = clean.slice(-2);
+        }
+      }
+
+      return updated;
+    });
+  }
+
+  function updateStake(
+    type: GameType,
+    id: number,
+    value: string
+  ) {
+    const clean = value
+      .replace(/[^0-9,.]/g, "")
+      .replace(".", ",");
+
+    setGames((current) => ({
+      ...current,
+      [type]: current[type].map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              stake: clean,
+            }
+          : item
+      ),
+    }));
+  }
+
+  function toAmount(value: string) {
+    const amount = Number(
+      value.replace(",", ".")
+    );
+
+    return Number.isFinite(amount)
+      ? amount
+      : 0;
+  }
+
+  const selected = useMemo(() => {
+    return ([4, 3, 2] as GameType[]).flatMap(
+      (type) =>
+        games[type]
+          .filter(
+            (item) =>
+              item.number.length === type &&
+              toAmount(item.stake) > 0
+          )
+          .map((item) => ({
+            ...item,
+            type,
+          }))
+    );
+  }, [games]);
+
+  const total = selected.reduce(
+    (sum, item) =>
+      sum + toAmount(item.stake),
+    0
+  );
 
   return (
     <main>
       <header className="topbar">
-        <a className="logo" href="/">
-          <span className="star">★</span>
+        <a href="/" className="logo">
+          <span className="logoStar">★</span>
 
           <div>
             <strong>WEGI NUMBER KÒRSOU</strong>
@@ -49,279 +177,344 @@ export default function HowItWorks() {
         </a>
 
         <nav>
-          <a href="/#spelen">Spelen</a>
-          <a href="/#uitslagen">Uitslagen</a>
-          <a href="/hoe-werkt-het">Hoe werkt het?</a>
+          <a href="#spelen">Spelen</a>
+          <a href="#uitslagen">Uitslagen</a>
 
-          <button className="accountLink">
+          <a href="/hoe-werkt-het">
+            Hoe werkt het?
+          </a>
+
+          <button className="accountButton">
             Mijn account
           </button>
 
-          <select className="language" defaultValue="nl">
-            <option value="pap">PAP</option>
-            <option value="nl">NL</option>
-            <option value="en">EN</option>
+          <select
+            className="languageSelect"
+            defaultValue="NL"
+          >
+            <option>NL</option>
+            <option>PAP</option>
+            <option>EN</option>
           </select>
         </nav>
       </header>
 
-      <div className="page rulesPage">
-        <section className="rulesHero">
-          <span className="tag">SPELREGELS</span>
+      <div className="page">
+        <section className="hero">
+          <div className="heroContent">
+            <span className="heroTag">
+              WEGI NUMBER KÒRSOU
+            </span>
 
-          <h1>
-            Hoe werkt
-            <span>Wegi Number Kòrsou?</span>
-          </h1>
+            <h1>
+              Kies jouw nummers.
+              <span>Speel mee.</span>
+            </h1>
 
-          <p>
-            Kies je nummer, bepaal zelf je inzet en controleer
-            na de trekking of jouw nummer overeenkomt met de uitslag.
-          </p>
-        </section>
+            <p>
+              Kies zelf je 4-, 3- of
+              2-cijferige nummers en bepaal
+              je inzet per nummer.
+            </p>
 
-        <section className="rulesIntro">
-          <span className="eyebrow">ZO SPEEL JE</span>
-          <h2>Spelen in vier stappen</h2>
+            <a
+              href="#spelen"
+              className="yellowButton"
+            >
+              Speel nu →
+            </a>
+          </div>
 
-          <div className="ruleSteps">
-            <article>
-              <b>01</b>
-              <h3>Kies je spel</h3>
-              <p>
-                Kies of je met een 4-, 3- of 2-cijferig nummer
-                wilt spelen.
-              </p>
-            </article>
-
-            <article>
-              <b>02</b>
-              <h3>Kies je nummer</h3>
-              <p>
-                Vul zelf het nummer in waarmee je wilt deelnemen.
-                Je kunt meerdere nummers spelen.
-              </p>
-            </article>
-
-            <article>
-              <b>03</b>
-              <h3>Bepaal je inzet</h3>
-              <p>
-                Ieder nummer heeft zijn eigen inzet. Daardoor kun
-                je per nummer zelf bepalen hoeveel je wilt inzetten.
-              </p>
-            </article>
-
-            <article>
-              <b>04</b>
-              <h3>Bekijk de uitslag</h3>
-              <p>
-                Na de trekking worden jouw gespeelde nummers met
-                de gepubliceerde uitslag vergeleken.
-              </p>
-            </article>
+          <div className="heroNumbers">
+            <span>1</span>
+            <span>2</span>
+            <span className="yellowNumber">
+              3
+            </span>
+            <span>4</span>
           </div>
         </section>
 
-        <section className="matchSection">
-          <div className="sectionTitle">
-            <span className="eyebrow">VOORBEELD</span>
-            <h2>Wanneer heb je een nummer goed?</h2>
+        <section
+          className="playPanel"
+          id="spelen"
+        >
+          <div className="panelTitle">
+            <small>SPELEN</small>
+
+            <h2>Jouw nummers</h2>
 
             <p>
-              Stel dat het getrokken 4-cijferige nummer
-              <strong> 7734 </strong>
-              is.
+              Vul je nummers en inzet in.
+              Bij een 4-cijferig nummer
+              worden de laatste 3 en 2
+              cijfers automatisch voorgesteld.
             </p>
           </div>
 
-          <div className="drawExample">
-            <div className="drawNumber">
-              <span>7</span>
-              <span>7</span>
-              <span>3</span>
-              <span>4</span>
+          <div className="gameColumns">
+            <GameColumn
+              title="4 cijfers"
+              type={4}
+              games={games[4]}
+              onAdd={() => addNumber(4)}
+              onRemove={(id) =>
+                removeNumber(4, id)
+              }
+              onNumber={(id, value) =>
+                updateNumber(4, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(4, id, value)
+              }
+            />
+
+            <GameColumn
+              title="3 cijfers"
+              type={3}
+              games={games[3]}
+              onAdd={() => addNumber(3)}
+              onRemove={(id) =>
+                removeNumber(3, id)
+              }
+              onNumber={(id, value) =>
+                updateNumber(3, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(3, id, value)
+              }
+            />
+
+            <GameColumn
+              title="2 cijfers"
+              type={2}
+              games={games[2]}
+              onAdd={() => addNumber(2)}
+              onRemove={(id) =>
+                removeNumber(2, id)
+              }
+              onNumber={(id, value) =>
+                updateNumber(2, id, value)
+              }
+              onStake={(id, value) =>
+                updateStake(2, id, value)
+              }
+            />
+          </div>
+        </section>
+
+        <section className="overviewPanel">
+          <div className="overviewTop">
+            <div>
+              <small>OVERZICHT</small>
+              <h2>Jouw deelname</h2>
             </div>
 
-            <div className="matchExamples">
-              <article>
-                <span className="matchBadge">4 CIJFERS</span>
-                <strong>7734</strong>
-                <p>
-                  Het volledige 4-cijferige nummer komt overeen.
-                </p>
-              </article>
-
-              <article>
-                <span className="matchBadge">3 CIJFERS</span>
-                <strong>734</strong>
-                <p>
-                  De laatste drie cijfers komen overeen.
-                </p>
-              </article>
-
-              <article>
-                <span className="matchBadge">2 CIJFERS</span>
-                <strong>34</strong>
-                <p>
-                  De laatste twee cijfers komen overeen.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section className="prizesSection">
-          <div className="sectionTitle">
-            <span className="eyebrow">PRIJZEN</span>
-            <h2>Hoeveel kun je winnen?</h2>
-
-            <p>
-              De hoogte van de uitbetaling hangt af van het soort
-              nummer, de uitslag en je inzet.
-            </p>
-          </div>
-
-          <div className="prizeTableWrapper">
-            <table className="prizeTable">
-              <thead>
-                <tr>
-                  <th>Spel</th>
-                  <th>Wat moet goed zijn?</th>
-                  <th>Voorbeeld</th>
-                  <th>Uitbetaling</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr>
-                  <td>
-                    <strong>4 cijfers</strong>
-                  </td>
-                  <td>Volledige 4 cijfers</td>
-                  <td>7734</td>
-                  <td className="pendingPrize">
-                    Wordt ingevuld
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <strong>3 cijfers</strong>
-                  </td>
-                  <td>Laatste 3 cijfers</td>
-                  <td>734</td>
-                  <td className="pendingPrize">
-                    Wordt ingevuld
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <strong>2 cijfers</strong>
-                  </td>
-                  <td>Laatste 2 cijfers</td>
-                  <td>34</td>
-                  <td className="pendingPrize">
-                    Wordt ingevuld
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p className="prizeWarning">
-            De definitieve bedragen worden hier gepubliceerd zodra
-            de prijzentabel voor WNKNL definitief is vastgelegd.
-          </p>
-        </section>
-
-        <section className="calculatorSection">
-          <div className="calculatorText">
-            <span className="eyebrow">CALCULATOR</span>
-
-            <h2>Bereken je mogelijke uitbetaling</h2>
-
-            <p>
-              Kies het spel en vul je inzet in. Zodra de definitieve
-              prijzentabel is gekoppeld, berekent WNKNL hier
-              automatisch de mogelijke uitbetaling.
-            </p>
-          </div>
-
-          <div className="calculatorCard">
-            <label>
-              Spel
-
-              <select
-                value={game}
-                onChange={(event) =>
-                  setGame(event.target.value as GameType)
-                }
-              >
-                <option value="4">4 cijfers</option>
-                <option value="3">3 cijfers</option>
-                <option value="2">2 cijfers</option>
-              </select>
-            </label>
-
-            <label>
-              Jouw inzet
-
-              <div className="calculatorMoney">
-                <span>€</span>
-
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={stake}
-                  onChange={(event) =>
-                    setStake(
-                      event.target.value.replace(
-                        /[^0-9,.]/g,
-                        ""
-                      )
-                    )
-                  }
-                />
-              </div>
-            </label>
-
-            <div className="calculatorResult">
-              <span>Mogelijke uitbetaling</span>
+            <div className="total">
+              <span>Totale inzet</span>
 
               <strong>
-                {calculatedPrize === null
-                  ? "—"
-                  : euro(calculatedPrize)}
+                €{" "}
+                {total.toLocaleString(
+                  "nl-NL",
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )}
               </strong>
-
-              <small>
-                Definitieve prijzentabel nog niet gekoppeld
-              </small>
             </div>
+          </div>
+
+          {selected.length === 0 ? (
+            <div className="emptyState">
+              Nog geen volledig ingevulde
+              nummers met inzet.
+            </div>
+          ) : (
+            <div className="summary">
+              {selected.map((item) => (
+                <div
+                  className="summaryRow"
+                  key={`${item.type}-${item.id}`}
+                >
+                  <span>
+                    {item.type} cijfers
+                  </span>
+
+                  <strong>
+                    {item.number}
+                  </strong>
+
+                  <span>
+                    €{" "}
+                    {toAmount(
+                      item.stake
+                    ).toLocaleString(
+                      "nl-NL",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="continueArea">
+            <button
+              className="continueButton"
+              disabled={
+                selected.length === 0
+              }
+            >
+              Verder →
+            </button>
           </div>
         </section>
 
-        <section className="backToPlay">
-          <div>
-            <span className="eyebrow">KLAAR OM TE SPELEN?</span>
-            <h2>Kies jouw nummers</h2>
+        <section
+          className="resultsSection"
+          id="uitslagen"
+        >
+          <div className="sectionTitle">
+            <small>UITSLAGEN</small>
+            <h2>Laatste trekking</h2>
           </div>
 
-          <a className="yellowButton" href="/#spelen">
-            Naar spelen →
-          </a>
+          <div className="resultsGrid">
+            <ResultCard title="1e prijs" />
+            <ResultCard title="2e prijs" />
+            <ResultCard title="3e prijs" />
+          </div>
         </section>
       </div>
 
       <footer>
         <strong>
-          <span>★</span> WEGI NUMBER KÒRSOU
+          <span>★</span>{" "}
+          WEGI NUMBER KÒRSOU
         </strong>
 
         <span>WNKNL · 2026</span>
       </footer>
     </main>
+  );
+}
+
+function GameColumn({
+  title,
+  type,
+  games,
+  onAdd,
+  onRemove,
+  onNumber,
+  onStake,
+}: {
+  title: string;
+  type: GameType;
+  games: Play[];
+  onAdd: () => void;
+  onRemove: (id: number) => void;
+  onNumber: (
+    id: number,
+    value: string
+  ) => void;
+  onStake: (
+    id: number,
+    value: string
+  ) => void;
+}) {
+  return (
+    <div className="gameColumn">
+      <h3>{title}</h3>
+
+      <div className="inputLabels">
+        <span>Nummer</span>
+        <span>Inzet</span>
+        <span />
+      </div>
+
+      <div className="numberRows">
+        {games.map((item) => (
+          <div
+            className="numberRow"
+            key={item.id}
+          >
+            <input
+              className="numberInput"
+              type="text"
+              inputMode="numeric"
+              maxLength={type}
+              placeholder={"0".repeat(type)}
+              value={item.number}
+              onChange={(event) =>
+                onNumber(
+                  item.id,
+                  event.target.value
+                )
+              }
+            />
+
+            <div className="stakeInput">
+              <span>€</span>
+
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={item.stake}
+                onChange={(event) =>
+                  onStake(
+                    item.id,
+                    event.target.value
+                  )
+                }
+              />
+            </div>
+
+            <button
+              className="deleteButton"
+              onClick={() =>
+                onRemove(item.id)
+              }
+              title="Verwijderen"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <button
+        className="addButton"
+        onClick={onAdd}
+      >
+        + Nummer
+      </button>
+    </div>
+  );
+}
+
+function ResultCard({
+  title,
+}: {
+  title: string;
+}) {
+  return (
+    <article className="resultCard">
+      <small>{title}</small>
+
+      <div className="resultNumbers">
+        <span>—</span>
+        <span>—</span>
+        <span>—</span>
+        <span>—</span>
+      </div>
+
+      <p>Nog geen uitslag</p>
+    </article>
   );
 }
