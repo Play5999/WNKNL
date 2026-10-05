@@ -1,12 +1,857 @@
-/* =========================
-   PRIJZEN / TREKKING
-   Herbruikbaar sitebreed
-   ========================= */
+:root {
+  --navy: #082f78;
+  --blue: #0057bd;
+  --bright-blue: #0788d1;
+  --yellow: #f9df00;
+
+  --background: #f4f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --text: #142a48;
+  --muted: #718096;
+
+  --border: #dce5ef;
+  --border-soft: #edf1f5;
+
+  --danger: #c74a58;
+
+  --container: 1180px;
+  --page-padding: 30px;
+
+  --radius: 14px;
+  --shadow: 0 7px 24px rgba(8, 47, 120, 0.05);
+}
+
+/* =========================================================
+   BASIS
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.siteContainer {
+  width: min(
+    var(--container),
+    calc(100% - var(--page-padding))
+  );
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pageContent,
+.standardPage {
+  padding-top: 22px;
+  padding-bottom: 55px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.siteHeader {
+  background: var(--navy);
+  color: white;
+  border-bottom: 4px solid var(--yellow);
+}
+
+.headerInner {
+  min-height: 68px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandStar {
+  color: var(--yellow);
+  font-size: 22px;
+}
+
+.brand div {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--yellow);
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.mainNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mainNav > a {
+  padding: 9px 10px;
+
+  border-radius: 6px;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mainNav > a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.accountButton {
+  padding: 9px 13px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 7px;
+
+  background: transparent;
+  color: white;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.languageSelect {
+  height: 36px;
+  padding: 0 9px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: white;
+  color: var(--navy);
+
+  font-weight: 800;
+}
+
+/* =========================================================
+   ALGEMENE COMPONENTEN
+   ========================================================= */
+
+.contentCard,
+.standardSection {
+  margin-bottom: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background: var(--surface);
+
+  box-shadow: var(--shadow);
+}
+
+.contentCard {
+  overflow: hidden;
+}
+
+.standardSection {
+  padding: 24px;
+}
+
+.sectionHeading {
+  padding: 22px 24px 16px;
+}
+
+.noCardHeading {
+  padding: 0 0 18px;
+}
+
+.sectionHeading small,
+.overviewHeader small {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--blue);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.3px;
+}
+
+.sectionHeading h2,
+.overviewHeader h2 {
+  margin: 0;
+
+  font-size: 22px;
+}
+
+.sectionHeading p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.yellowButton,
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 17px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: var(--yellow);
+  color: var(--navy);
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* =========================================================
+   HOMEPAGE HERO
+   ========================================================= */
+
+.hero,
+.pageHero {
+  margin-bottom: 20px;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      120deg,
+      var(--navy),
+      var(--blue)
+    );
+
+  color: white;
+
+  box-shadow:
+    0 10px 30px rgba(8, 47, 120, 0.08);
+}
+
+.hero {
+  min-height: 290px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 40px;
+
+  padding: 38px 45px;
+
+  overflow: hidden;
+}
+
+.pageHero {
+  padding: 38px 42px;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+}
+
+.heroTag {
+  display: inline-block;
+
+  padding: 6px 11px;
+
+  border-radius: 20px;
+
+  background: var(--yellow);
+  color: var(--navy);
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.hero h1,
+.pageHero h1 {
+  color: white;
+  letter-spacing: -2px;
+}
+
+.hero h1 {
+  margin: 13px 0 10px;
+
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 0.98;
+}
+
+.pageHero h1 {
+  margin: 13px 0 10px;
+
+  font-size: clamp(32px, 4vw, 48px);
+}
+
+.hero h1 span,
+.pageHero h1 span {
+  color: var(--yellow);
+}
+
+.hero h1 span {
+  display: block;
+  margin-top: 6px;
+}
+
+.hero p,
+.pageHero p {
+  max-width: 700px;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  line-height: 1.6;
+}
+
+.hero p {
+  margin: 0 0 21px;
+  font-size: 14px;
+}
+
+.pageHero p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.heroNumbers {
+  display: flex;
+  gap: 7px;
+}
+
+.heroNumbers span {
+  width: 52px;
+  height: 62px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  color: white;
+
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.heroNumbers .yellowNumber {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+/* =========================================================
+   HOMEPAGE - SPELEN
+   ========================================================= */
+
+.gameColumns {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+
+  padding: 5px 18px 20px;
+}
+
+.gameColumn {
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e3eaf2;
+  border-radius: 11px;
+
+  background: var(--surface-soft);
+}
+
+.gameColumn h3 {
+  margin: 0 0 12px;
+
+  color: var(--navy);
+
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.inputLabels,
+.numberRow {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(0, 0.85fr)
+    25px;
+
+  gap: 6px;
+}
+
+.inputLabels {
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.numberRows {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.numberRow {
+  align-items: center;
+}
+
+.numberInput {
+  width: 100%;
+  min-width: 0;
+  height: 41px;
+
+  padding: 0 8px;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 7px;
+
+  outline: none;
+
+  background: white;
+  color: var(--navy);
+
+  font-size: 16px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.numberInput:focus {
+  border-color: var(--bright-blue);
+
+  box-shadow:
+    0 0 0 2px rgba(7, 136, 209, 0.1);
+}
+
+.suggestedInput {
+  border-color: #9ed4f2;
+  background: #f0f9ff;
+}
+
+.stakeInput {
+  height: 41px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 7px;
+
+  background: white;
+}
+
+.stakeInput span {
+  padding-left: 8px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.stakeInput input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+
+  padding: 0 5px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  font-size: 12px;
+}
+
+.deleteButton {
+  width: 25px;
+  height: 25px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+  color: #9aa7b6;
+
+  font-size: 17px;
+}
+
+.deleteButton:hover {
+  background: #fff0f1;
+  color: var(--danger);
+}
+
+.addButton {
+  width: 100%;
+
+  margin-top: 10px;
+  padding: 9px;
+
+  border: 1px solid #c7dcec;
+  border-radius: 7px;
+
+  background: #edf7ff;
+  color: var(--blue);
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.addButton:hover {
+  background: #dff1ff;
+}
+
+/* =========================================================
+   HOMEPAGE - OVERZICHT
+   ========================================================= */
+
+.overviewCard {
+  padding: 22px 24px;
+}
+
+.overviewHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 17px;
+}
+
+.totalStake {
+  text-align: right;
+}
+
+.totalStake span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.totalStake strong {
+  color: var(--navy);
+
+  font-size: 26px;
+}
+
+.emptyState {
+  padding: 17px;
+
+  border: 1px dashed #cad7e4;
+  border-radius: 8px;
+
+  background: var(--surface-soft);
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.summaryList {
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.summaryRow {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr 1fr;
+
+  padding: 11px 13px;
+
+  border-bottom: 1px solid var(--border-soft);
+
+  font-size: 12px;
+}
+
+.summaryRow:last-child {
+  border-bottom: 0;
+}
+
+.summaryRow strong {
+  color: var(--blue);
+}
+
+.summaryRow span:last-child {
+  text-align: right;
+}
+
+.continueArea {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 15px;
+}
+
+/* =========================================================
+   UITSLAGEN
+   ========================================================= */
+
+.resultsSection {
+  padding-top: 20px;
+}
+
+.resultsGrid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px;
+}
+
+.resultCard {
+  padding: 19px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+}
+
+.resultCard > small {
+  color: var(--blue);
+
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.resultNumbers {
+  display: flex;
+
+  gap: 5px;
+
+  margin: 13px 0 8px;
+}
+
+.resultNumbers span {
+  width: 35px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 6px;
+
+  background: var(--navy);
+  color: var(--yellow);
+
+  font-weight: 900;
+}
+
+.resultCard p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   HOE WERKT HET - STAPPEN
+   ========================================================= */
+
+.rulesGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.ruleCard {
+  min-height: 180px;
+
+  padding: 20px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface-soft);
+}
+
+.stepNumber {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: var(--navy);
+  color: var(--yellow);
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.ruleCard h3 {
+  margin: 17px 0 7px;
+
+  color: var(--navy);
+}
+
+.ruleCard p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   MATCHES
+   ========================================================= */
+
+.matchGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.matchCard {
+  padding: 20px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface-soft);
+}
+
+.matchCard small {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--blue);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.matchCard strong {
+  display: block;
+
+  color: var(--navy);
+
+  font-size: 27px;
+  letter-spacing: 3px;
+}
+
+.matchCard p {
+  margin: 8px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   TREKKING
+   ========================================================= */
 
 .drawExplanation,
 .examplePayoutGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 12px;
 }
 
@@ -33,6 +878,7 @@
 
   font-size: 9px;
   font-weight: 900;
+
   letter-spacing: 0.8px;
 }
 
@@ -51,6 +897,52 @@
   color: var(--muted);
 
   font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   TABELLEN
+   ========================================================= */
+
+.tableWrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.siteTable {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: white;
+}
+
+.siteTable th,
+.siteTable td {
+  padding: 14px 16px;
+
+  border-bottom: 1px solid var(--border-soft);
+
+  text-align: left;
+}
+
+.siteTable th {
+  background: var(--navy);
+  color: white;
+
+  font-size: 11px;
+}
+
+.siteTable td {
+  font-size: 12px;
+}
+
+.siteTable tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .payoutTable td {
@@ -74,6 +966,24 @@
 .payoutTable td strong {
   color: var(--blue);
 }
+
+.infoNotice {
+  margin-top: 15px;
+  padding: 13px 15px;
+
+  border: 1px solid #e6d755;
+  border-radius: 8px;
+
+  background: #fffbe1;
+  color: #625c2b;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   REKENVOORBEELDEN
+   ========================================================= */
 
 .payoutExampleCard > span {
   color: var(--muted);
@@ -102,9 +1012,418 @@
   font-size: 27px;
 }
 
-@media (max-width: 750px) {
+/* =========================================================
+   WINSTCALCULATOR
+   ========================================================= */
+
+.calculatorForm {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.calculatorField {
+  min-width: 0;
+}
+
+.calculatorField label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--navy);
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.calculatorField select {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 12px;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: white;
+  color: var(--text);
+
+  font-weight: 700;
+}
+
+.calculatorField select:focus {
+  border-color: var(--bright-blue);
+
+  box-shadow:
+    0 0 0 2px rgba(7, 136, 209, 0.1);
+}
+
+.calculatorMoneyInput {
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 8px;
+
+  background: white;
+}
+
+.calculatorMoneyInput:focus-within {
+  border-color: var(--bright-blue);
+
+  box-shadow:
+    0 0 0 2px rgba(7, 136, 209, 0.1);
+}
+
+.calculatorMoneyInput span {
+  padding-left: 13px;
+
+  color: var(--muted);
+
+  font-weight: 800;
+}
+
+.calculatorMoneyInput input {
+  width: 100%;
+  height: 100%;
+
+  padding: 0 12px 0 7px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  color: var(--text);
+
+  font-weight: 800;
+}
+
+.calculatorResult {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 25px;
+
+  padding: 22px;
+
+  border: 1px solid #b5d9ef;
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      120deg,
+      #f4fbff,
+      #eef8ff
+    );
+}
+
+.calculatorResult small {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+}
+
+.calculatorResult > div:first-child > strong {
+  color: var(--navy);
+
+  font-size: 16px;
+}
+
+.calculatorFormula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: var(--navy);
+
+  white-space: nowrap;
+}
+
+.calculatorFormula span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.calculatorFormula b {
+  color: var(--blue);
+
+  font-size: 18px;
+}
+
+.calculatorWinning {
+  text-align: right;
+}
+
+.calculatorWinning strong {
+  display: block;
+
+  color: var(--blue);
+
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+/* =========================================================
+   CTA
+   ========================================================= */
+
+.rulesCTA {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  padding: 25px;
+
+  border-radius: var(--radius);
+
+  background: var(--navy);
+  color: white;
+
+  box-shadow: var(--shadow);
+}
+
+.rulesCTA small {
+  color: var(--yellow);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.rulesCTA h2 {
+  margin: 5px 0;
+
+  color: white;
+}
+
+.rulesCTA p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.siteFooter {
+  background: var(--navy);
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footerInner {
+  min-height: 85px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  font-size: 11px;
+}
+
+.footerInner strong {
+  color: white;
+}
+
+.footerInner strong span {
+  color: var(--yellow);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+  .headerInner {
+    padding: 12px 0;
+
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mainNav {
+    width: 100%;
+
+    overflow-x: auto;
+  }
+
+  .gameColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .rulesGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .matchGrid,
   .drawExplanation,
   .examplePayoutGrid {
     grid-template-columns: 1fr;
+  }
+
+  .calculatorForm {
+    grid-template-columns: 1fr;
+  }
+
+  .calculatorResult {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .calculatorFormula {
+    justify-content: flex-start;
+  }
+
+  .calculatorWinning {
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  :root {
+    --page-padding: 20px;
+  }
+
+  .pageContent,
+  .standardPage {
+    padding-top: 12px;
+    padding-bottom: 35px;
+  }
+
+  .mainNav {
+    gap: 2px;
+  }
+
+  .mainNav > a,
+  .accountButton {
+    padding: 7px;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+  }
+
+  .hero,
+  .pageHero {
+    min-height: auto;
+
+    padding: 27px 20px;
+
+    border-radius: 12px;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .heroNumbers {
+    display: none;
+  }
+
+  .standardSection {
+    padding: 18px;
+  }
+
+  .gameColumns {
+    padding: 3px 10px 12px;
+
+    gap: 8px;
+  }
+
+  .gameColumn {
+    padding: 12px;
+  }
+
+  .numberRow,
+  .inputLabels {
+    grid-template-columns:
+      minmax(0, 1.35fr)
+      minmax(0, 1fr)
+      24px;
+  }
+
+  .overviewCard {
+    padding: 18px;
+  }
+
+  .resultsGrid,
+  .rulesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ruleCard {
+    min-height: auto;
+  }
+
+  .calculatorResult {
+    padding: 17px;
+  }
+
+  .calculatorFormula {
+    flex-wrap: wrap;
+  }
+
+  .rulesCTA {
+    align-items: flex-start;
+    flex-direction: column;
+
+    padding: 20px;
+  }
+
+  .footerInner {
+    padding: 20px 0;
+
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
