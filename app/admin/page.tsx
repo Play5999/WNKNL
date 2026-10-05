@@ -103,7 +103,7 @@ export default async function AdminPage() {
     .eq("is_admin", false);
 
   // =========================================================
-  // DATUM VANDAAG - NEDERLANDSE TIJD
+  // DATUM VANDAAG
   // =========================================================
 
   const today = new Intl.DateTimeFormat(
@@ -137,9 +137,6 @@ export default async function AdminPage() {
 
   // =========================================================
   // INKOMSTEN
-  //
-  // Alleen betalingen die daadwerkelijk zijn goedgekeurd.
-  // Pending telt dus NIET mee als inkomsten.
   // =========================================================
 
   const approvedOrders = orders.filter(
@@ -220,14 +217,6 @@ export default async function AdminPage() {
       0
     );
 
-  /*
-    Voor "vandaag" gebruiken we de draw_date.
-
-    Een prijs hoort namelijk bij de trekking
-    van die dag, ook wanneer jij hem pas later
-    daadwerkelijk uitbetaalt.
-  */
-
   const todayOutstandingPayout =
     unpaidWinningOrders
       .filter(
@@ -243,9 +232,6 @@ export default async function AdminPage() {
 
   // =========================================================
   // NETTO RESULTAAT
-  //
-  // We trekken zowel reeds betaalde prijzen
-  // als nog verschuldigde prijzen af.
   // =========================================================
 
   const totalNetResult =
@@ -259,7 +245,7 @@ export default async function AdminPage() {
     todayOutstandingPayout;
 
   // =========================================================
-  // OVERIGE DASHBOARD CIJFERS
+  // DASHBOARD CIJFERS
   // =========================================================
 
   const pendingCount =
@@ -278,6 +264,13 @@ export default async function AdminPage() {
 
   const playerCount =
     players?.length ?? 0;
+
+  const winnersToPay =
+    unpaidWinningOrders.length;
+
+  // =========================================================
+  // PAGINA
+  // =========================================================
 
   return (
     <main>
@@ -325,9 +318,8 @@ export default async function AdminPage() {
             <p>
               Goedgekeurde inzet wordt als
               inkomsten gerekend. Gewonnen
-              bedragen worden als verplichting
-              meegenomen totdat ze zijn
-              uitbetaald.
+              bedragen blijven openstaan
+              totdat ze zijn uitbetaald.
             </p>
 
           </div>
@@ -339,17 +331,9 @@ export default async function AdminPage() {
 
               <thead>
                 <tr>
-                  <th>
-                    Onderdeel
-                  </th>
-
-                  <th>
-                    Vandaag
-                  </th>
-
-                  <th>
-                    Sinds start
-                  </th>
+                  <th>Onderdeel</th>
+                  <th>Vandaag</th>
+                  <th>Sinds start</th>
                 </tr>
               </thead>
 
@@ -443,10 +427,10 @@ export default async function AdminPage() {
             <strong>
               Netto resultaat
             </strong>{" "}
-            = goedgekeurde inzet minus reeds
-            uitbetaalde prijzen minus gewonnen
-            bedragen die nog uitbetaald moeten
-            worden.
+            = goedgekeurde inzet minus
+            uitbetaalde prijzen minus
+            prijzen die nog uitbetaald
+            moeten worden.
 
           </div>
 
@@ -454,7 +438,7 @@ export default async function AdminPage() {
 
 
         {/* =================================================
-            DASHBOARD OVERZICHT
+            DASHBOARD
         ================================================= */}
 
         <section className="standardSection">
@@ -492,6 +476,34 @@ export default async function AdminPage() {
               <strong>
                 {money(
                   pendingPaymentAmount
+                )}
+              </strong>
+
+            </div>
+
+
+            <div className="adminStatCard">
+
+              <small>
+                WINNAARS TE BETALEN
+              </small>
+
+              <strong>
+                {winnersToPay}
+              </strong>
+
+            </div>
+
+
+            <div className="adminStatCard">
+
+              <small>
+                NOG UIT TE BETALEN
+              </small>
+
+              <strong>
+                {money(
+                  totalOutstandingPayout
                 )}
               </strong>
 
@@ -543,10 +555,10 @@ export default async function AdminPage() {
             </h2>
 
             <p>
-              Deze spelers hebben een
-              bestelling aangemaakt waarvan de
-              betaling nog gecontroleerd moet
-              worden.
+              Controleer of het juiste
+              bedrag met de juiste
+              betaalreferentie is
+              ontvangen.
             </p>
 
           </div>
@@ -666,25 +678,34 @@ export default async function AdminPage() {
               <h3>Betalingen</h3>
 
               <p>
-                Controleer betalingen en keur
-                deelnames goed of af.
+                Controleer betalingen en
+                keur deelnames goed of af.
               </p>
 
             </div>
 
 
-            <div className="adminMenuCard">
+            {/* =============================================
+                TREKKINGEN - NU KLIKBAAR
+            ============================================= */}
+
+            <Link
+              href="/admin/trekkingen"
+              className="adminMenuCard"
+            >
 
               <span>02</span>
 
               <h3>Trekkingen</h3>
 
               <p>
-                Voer de eerste, tweede en derde
-                prijs van iedere trekking in.
+                Voer de eerste, tweede en
+                derde prijs in en laat het
+                systeem automatisch alle
+                winnaars berekenen.
               </p>
 
-            </div>
+            </Link>
 
 
             <div className="adminMenuCard">
@@ -694,8 +715,9 @@ export default async function AdminPage() {
               <h3>Winnaars</h3>
 
               <p>
-                Bekijk de automatisch berekende
-                winnaars en gewonnen bedragen.
+                Bekijk de automatisch
+                berekende winnaars en
+                gewonnen bedragen.
               </p>
 
             </div>
