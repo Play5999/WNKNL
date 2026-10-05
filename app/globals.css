@@ -3,13 +3,29 @@
   --blue: #0057bd;
   --bright-blue: #0788d1;
   --yellow: #f9df00;
-  --bg: #f4f7fb;
-  --white: #ffffff;
+
+  --background: #f4f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
   --text: #142a48;
   --muted: #718096;
+
   --border: #dce5ef;
+  --border-soft: #edf1f5;
+
   --danger: #c74a58;
+
+  --container: 1180px;
+  --page-padding: 30px;
+
+  --radius: 14px;
+  --shadow: 0 7px 24px rgba(8, 47, 120, 0.05);
 }
+
+/* =========================
+   BASIS
+   ========================= */
 
 * {
   box-sizing: border-box;
@@ -21,9 +37,19 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+
+  background: var(--background);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 button,
@@ -36,81 +62,101 @@ button {
   cursor: pointer;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.siteContainer {
+  width: min(
+    var(--container),
+    calc(100% - var(--page-padding))
+  );
+
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* HEADER */
+.pageContent {
+  padding-top: 22px;
+  padding-bottom: 55px;
+}
 
-.topbar {
+/* =========================
+   CENTRALE HEADER
+   ========================= */
+
+.siteHeader {
+  background: var(--navy);
+  color: white;
+
+  border-bottom: 4px solid var(--yellow);
+}
+
+.headerInner {
   min-height: 68px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 30px;
-
-  padding:
-    10px
-    max(20px, calc((100vw - 1180px) / 2));
-
-  background: var(--navy);
-  border-bottom: 4px solid var(--yellow);
-  color: white;
 }
 
-.logo {
+.brand {
   display: flex;
   align-items: center;
+
   gap: 10px;
 }
 
-.logoStar {
+.brandStar {
   color: var(--yellow);
   font-size: 22px;
 }
 
-.logo div {
+.brand div {
   display: flex;
   flex-direction: column;
 }
 
-.logo strong {
+.brand strong {
   font-size: 15px;
   font-weight: 900;
 }
 
-.logo small {
+.brand small {
   margin-top: 2px;
+
   color: var(--yellow);
+
   font-size: 9px;
   font-weight: 900;
+
   letter-spacing: 2px;
 }
 
-.topbar nav {
+.mainNav {
   display: flex;
   align-items: center;
+
   gap: 6px;
 }
 
-.topbar nav a {
+.mainNav > a {
   padding: 9px 10px;
+
   border-radius: 6px;
 
-  color: rgba(255,255,255,.9);
+  color: rgba(255, 255, 255, 0.9);
+
   font-size: 12px;
   font-weight: 700;
 }
 
-.topbar nav a:hover {
-  background: rgba(255,255,255,.1);
+.mainNav > a:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .accountButton {
   padding: 9px 13px;
 
-  border: 1px solid rgba(255,255,255,.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 7px;
 
   background: transparent;
@@ -122,6 +168,7 @@ a {
 
 .languageSelect {
   height: 36px;
+
   padding: 0 9px;
 
   border: 0;
@@ -133,17 +180,95 @@ a {
   font-weight: 800;
 }
 
-/* PAGE */
+/* =========================
+   ALGEMENE PAGINA COMPONENTEN
+   ========================= */
 
-.page {
-  width: min(1180px, calc(100% - 30px));
-  margin: 22px auto 55px;
+.contentCard {
+  margin-bottom: 18px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background: var(--surface);
+
+  box-shadow: var(--shadow);
 }
 
-/* HERO */
+.sectionHeading {
+  padding: 22px 24px 16px;
+}
+
+.sectionHeading small,
+.overviewHeader small {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--blue);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.3px;
+}
+
+.sectionHeading h2,
+.overviewHeader h2 {
+  margin: 0;
+
+  font-size: 22px;
+}
+
+.sectionHeading p {
+  max-width: 720px;
+
+  margin: 7px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.noCardHeading {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.yellowButton,
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 17px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: var(--yellow);
+  color: var(--navy);
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* =========================
+   HERO
+   ========================= */
 
 .hero {
   min-height: 290px;
+
+  position: relative;
 
   display: flex;
   align-items: center;
@@ -155,7 +280,6 @@ a {
   margin-bottom: 20px;
 
   overflow: hidden;
-  position: relative;
 
   border-radius: 16px;
 
@@ -169,7 +293,7 @@ a {
   color: white;
 
   box-shadow:
-    0 10px 30px rgba(8,47,120,.08);
+    0 10px 30px rgba(8, 47, 120, 0.08);
 }
 
 .heroContent {
@@ -189,6 +313,7 @@ a {
 
   font-size: 9px;
   font-weight: 900;
+
   letter-spacing: 1px;
 }
 
@@ -198,7 +323,8 @@ a {
   color: white;
 
   font-size: clamp(38px, 5vw, 58px);
-  line-height: .98;
+  line-height: 0.98;
+
   letter-spacing: -2px;
 }
 
@@ -215,32 +341,16 @@ a {
 
   margin: 0 0 21px;
 
-  color: rgba(255,255,255,.82);
+  color: rgba(255, 255, 255, 0.82);
 
   font-size: 14px;
   line-height: 1.6;
 }
 
-.yellowButton {
-  display: inline-flex;
-
-  padding: 11px 17px;
-
-  border-radius: 7px;
-
-  background: var(--yellow);
-  color: var(--navy);
-
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .heroNumbers {
   display: flex;
-  gap: 7px;
 
-  position: relative;
-  z-index: 2;
+  gap: 7px;
 }
 
 .heroNumbers span {
@@ -250,10 +360,10 @@ a {
   display: grid;
   place-items: center;
 
-  border: 1px solid rgba(255,255,255,.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 8px;
 
-  background: rgba(255,255,255,.12);
+  background: rgba(255, 255, 255, 0.12);
 
   color: white;
 
@@ -266,60 +376,15 @@ a {
   color: var(--yellow);
 }
 
-/* PLAY */
-
-.playPanel,
-.overviewPanel {
-  margin-bottom: 18px;
-
-  border: 1px solid var(--border);
-  border-radius: 14px;
-
-  background: white;
-
-  box-shadow:
-    0 7px 24px rgba(8,47,120,.05);
-}
-
-.panelTitle {
-  padding: 22px 24px 16px;
-}
-
-.panelTitle small,
-.overviewTop small,
-.sectionTitle small {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: var(--blue);
-
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 1.3px;
-}
-
-.panelTitle h2,
-.overviewTop h2,
-.sectionTitle h2 {
-  margin: 0;
-
-  font-size: 22px;
-}
-
-.panelTitle p {
-  margin: 7px 0 0;
-
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-/* THREE INDEPENDENT COLUMNS */
+/* =========================
+   SPELEN
+   ========================= */
 
 .gameColumns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 
   gap: 12px;
 
@@ -334,7 +399,7 @@ a {
   border: 1px solid #e3eaf2;
   border-radius: 11px;
 
-  background: #f8fafc;
+  background: var(--surface-soft);
 }
 
 .gameColumn h3 {
@@ -346,41 +411,37 @@ a {
   text-transform: uppercase;
 }
 
-.inputLabels {
+.inputLabels,
+.numberRow {
   display: grid;
 
   grid-template-columns:
-    minmax(0,1.25fr)
-    minmax(0,.85fr)
+    minmax(0, 1.25fr)
+    minmax(0, 0.85fr)
     25px;
 
   gap: 6px;
+}
 
+.inputLabels {
   margin-bottom: 5px;
 
   color: var(--muted);
 
   font-size: 9px;
   font-weight: 800;
+
   text-transform: uppercase;
 }
 
 .numberRows {
   display: flex;
   flex-direction: column;
+
   gap: 7px;
 }
 
 .numberRow {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0,1.25fr)
-    minmax(0,.85fr)
-    25px;
-
-  gap: 6px;
-
   align-items: center;
 }
 
@@ -401,6 +462,7 @@ a {
 
   font-size: 16px;
   font-weight: 900;
+
   letter-spacing: 2px;
   text-align: center;
 }
@@ -409,7 +471,13 @@ a {
   border-color: var(--bright-blue);
 
   box-shadow:
-    0 0 0 2px rgba(7,136,209,.1);
+    0 0 0 2px rgba(7, 136, 209, 0.1);
+}
+
+.suggestedInput {
+  border-color: #9ed4f2;
+
+  background: #f0f9ff;
 }
 
 .stakeInput {
@@ -442,7 +510,7 @@ a {
   padding: 0 5px;
 
   border: 0;
-  outline: none;
+  outline: 0;
 
   background: transparent;
 
@@ -488,17 +556,15 @@ a {
   font-weight: 900;
 }
 
-.addButton:hover {
-  background: #dff1ff;
-}
+/* =========================
+   OVERZICHT
+   ========================= */
 
-/* OVERVIEW */
-
-.overviewPanel {
+.overviewCard {
   padding: 22px 24px;
 }
 
-.overviewTop {
+.overviewHeader {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -508,21 +574,22 @@ a {
   margin-bottom: 17px;
 }
 
-.total {
+.totalStake {
   text-align: right;
 }
 
-.total span {
+.totalStake span {
   display: block;
 
   color: var(--muted);
 
   font-size: 9px;
   font-weight: 800;
+
   text-transform: uppercase;
 }
 
-.total strong {
+.totalStake strong {
   color: var(--navy);
 
   font-size: 26px;
@@ -534,14 +601,13 @@ a {
   border: 1px dashed #cad7e4;
   border-radius: 8px;
 
-  background: #f8fafc;
-
+  background: var(--surface-soft);
   color: var(--muted);
 
   font-size: 12px;
 }
 
-.summary {
+.summaryList {
   overflow: hidden;
 
   border: 1px solid var(--border);
@@ -555,7 +621,7 @@ a {
 
   padding: 11px 13px;
 
-  border-bottom: 1px solid #edf1f5;
+  border-bottom: 1px solid var(--border-soft);
 
   font-size: 12px;
 }
@@ -579,37 +645,18 @@ a {
   margin-top: 15px;
 }
 
-.continueButton {
-  padding: 10px 20px;
-
-  border: 0;
-  border-radius: 7px;
-
-  background: var(--yellow);
-  color: var(--navy);
-
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.continueButton:disabled {
-  cursor: not-allowed;
-  opacity: .4;
-}
-
-/* RESULTS */
+/* =========================
+   UITSLAGEN
+   ========================= */
 
 .resultsSection {
-  padding-top: 27px;
-}
-
-.sectionTitle {
-  margin-bottom: 15px;
+  padding-top: 20px;
 }
 
 .resultsGrid {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 12px;
 }
@@ -622,8 +669,7 @@ a {
 
   background: white;
 
-  box-shadow:
-    0 6px 20px rgba(8,47,120,.05);
+  box-shadow: var(--shadow);
 }
 
 .resultCard > small {
@@ -635,6 +681,7 @@ a {
 
 .resultNumbers {
   display: flex;
+
   gap: 5px;
 
   margin: 13px 0 8px;
@@ -663,82 +710,201 @@ a {
   font-size: 11px;
 }
 
-/* FOOTER */
+/* =========================
+   HOE WERKT HET + TOEKOMSTIGE PAGINA'S
+   ========================= */
 
-footer {
+.standardPage {
+  padding-top: 22px;
+  padding-bottom: 55px;
+}
+
+.pageHero {
+  padding: 38px 42px;
+  margin-bottom: 20px;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      120deg,
+      var(--navy),
+      var(--blue)
+    );
+
+  color: white;
+
+  box-shadow: var(--shadow);
+}
+
+.pageHero h1 {
+  margin: 8px 0;
+
+  font-size: clamp(32px, 4vw, 48px);
+}
+
+.pageHero h1 span {
+  color: var(--yellow);
+}
+
+.pageHero p {
+  max-width: 700px;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.8);
+
+  line-height: 1.6;
+}
+
+.standardSection {
+  padding: 24px;
+  margin-bottom: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background: white;
+
+  box-shadow: var(--shadow);
+}
+
+.standardSection h2 {
+  margin-top: 0;
+}
+
+.cardGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.infoCard {
+  padding: 20px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface-soft);
+}
+
+.tableWrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.siteTable {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.siteTable th,
+.siteTable td {
+  padding: 14px 16px;
+
+  border-bottom: 1px solid var(--border-soft);
+
+  text-align: left;
+}
+
+.siteTable th {
+  background: var(--navy);
+  color: white;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.siteFooter {
+  background: var(--navy);
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footerInner {
   min-height: 85px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding:
-    20px
-    max(20px, calc((100vw - 1180px) / 2));
-
-  background: var(--navy);
-
-  color: rgba(255,255,255,.7);
+  gap: 20px;
 
   font-size: 11px;
 }
 
-footer strong {
+.footerInner strong {
   color: white;
 }
 
-footer strong span {
+.footerInner strong span {
   color: var(--yellow);
 }
 
-/* TABLET */
+/* =========================
+   TABLET
+   ========================= */
 
 @media (max-width: 850px) {
-  .topbar {
+  .headerInner {
+    padding: 12px 0;
+
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .topbar nav {
+  .mainNav {
     width: 100%;
+
     overflow-x: auto;
   }
 
-  .gameColumns {
+  .gameColumns,
+  .cardGrid {
     grid-template-columns: 1fr;
-  }
-
-  .gameColumn h3 {
-    text-align: left;
   }
 }
 
-/* MOBILE */
+/* =========================
+   MOBILE
+   ========================= */
 
 @media (max-width: 600px) {
-  .page {
-    width: calc(100% - 20px);
-    margin-top: 12px;
+  :root {
+    --page-padding: 20px;
   }
 
-  .topbar {
-    padding: 12px 14px;
+  .pageContent,
+  .standardPage {
+    padding-top: 12px;
+    padding-bottom: 35px;
   }
 
-  .topbar nav {
+  .mainNav {
     gap: 2px;
   }
 
-  .topbar nav a,
+  .mainNav > a,
   .accountButton {
     padding: 7px;
+
     white-space: nowrap;
+
     font-size: 10px;
   }
 
-  .hero {
+  .hero,
+  .pageHero {
     min-height: auto;
+
     padding: 27px 20px;
+
     border-radius: 12px;
   }
 
@@ -752,6 +918,7 @@ footer strong span {
 
   .gameColumns {
     padding: 3px 10px 12px;
+
     gap: 8px;
   }
 
@@ -759,25 +926,19 @@ footer strong span {
     padding: 12px;
   }
 
-  .numberRow,
-  .inputLabels {
-    grid-template-columns:
-      minmax(0,1.35fr)
-      minmax(0,1fr)
-      24px;
-  }
-
-  .overviewPanel {
-    padding: 18px 15px;
+  .overviewCard,
+  .standardSection {
+    padding: 18px;
   }
 
   .resultsGrid {
     grid-template-columns: 1fr;
   }
 
-  footer {
+  .footerInner {
+    padding: 20px 0;
+
     align-items: flex-start;
     flex-direction: column;
-    gap: 8px;
   }
 }
