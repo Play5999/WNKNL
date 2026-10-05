@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "../../lib/supabase/server";
+import { createClient } from "../../../lib/supabase/server";
 
 function money(value: number) {
   return value.toLocaleString("nl-NL", {
@@ -11,11 +11,49 @@ function money(value: number) {
   });
 }
 
-export default async function AdminPage() {
+function getTodayAmsterdam() {
+  const parts =
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Amsterdam",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+
+  const year =
+    parts.find(
+      (part) => part.type === "year"
+    )?.value ?? "";
+
+  const month =
+    parts.find(
+      (part) => part.type === "month"
+    )?.value ?? "";
+
+  const day =
+    parts.find(
+      (part) => part.type === "day"
+    )?.value ?? "";
+
+  return `${year}-${month}-${day}`;
+}
+
+export default async function DrawPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    success?: string;
+    winners?: string;
+    payout?: string;
+    error?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
   const supabase = await createClient();
 
   // =========================================================
-  // INGelogde gebruiker
+  // LOGIN + ADMIN
   // =========================================================
 
   const {
@@ -26,281 +64,225 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  // =========================================================
-  // ADMIN CONTROLEREN
-  // =========================================================
+  const { data: profile } =
+    await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select(
-      "account_number, full_name, email, is_admin"
-    )
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || !profile.is_admin) {
+  if (!profile?.is_admin) {
     redirect("/account");
   }
 
-  // =========================================================
-  // ALLE BESTELLINGEN
-  // =========================================================
-
-  const { data: allOrders } = await supabase
-    .from("orders")
-    .select(`
-      id,
-      user_id,
-      draw_date,
-      payment_reference,
-      total_amount,
-      payment_status,
-      winnings,
-      payout_status,
-      approved_at,
-      paid_out_at,
-      created_at
-    `)
-    .order("created_at", {
-      ascending: false,
-    });
-
-  const orders = allOrders ?? [];
+  const today = getTodayAmsterdam();
 
   // =========================================================
-  // OPENSTAANDE BETALINGEN
+  // RECENTE TREKKINGEN
   // =========================================================
 
-  const { data: pendingOrders } =
+  const { data: draws } =
     await supabase
-      .from("orders")
+      .from("draws")
       .select(`
         id,
-        payment_reference,
-        total_amount,
-        payment_status,
         draw_date,
-        created_at,
-        user_id,
-        profiles (
-          account_number,
-          full_name,
-          email
-        )
+        first_prize,
+        second_prize,
+        third_prize,
+        status,
+        created_at
       `)
-      .eq("payment_status", "pending")
-      .order("created_at", {
+      .order("draw_date", {
         ascending: false,
-      });
+      })
+      .limit(10);
 
   // =========================================================
-  // SPELERS
+  // TREKKING VERWERKEN
   // =========================================================
 
-  const { data: players } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("is_admin", false);
+  async function processDraw(
+    formData: FormData
+  ) {
+    "use server";
 
-  // =========================================================
-  // DATUM VANDAAG
-  // =========================================================
+    const supabase =
+      await createClient();
 
-  const today = new Intl.DateTimeFormat(
-    "en-CA",
-    {
-      timeZone: "Europe/Amsterdam",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }
-  ).format(new Date());
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  function isToday(date?: string | null) {
-    if (!date) {
-      return false;
+    if (!user) {
+      redirect("/login");
     }
 
-    const formatted =
-      new Intl.DateTimeFormat(
-        "en-CA",
-        {
-          timeZone: "Europe/Amsterdam",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }
-      ).format(new Date(date));
+    const { data: admin } =
+      await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
 
-    return formatted === today;
+    if (!admin?.is_admin) {
+      redirect("/account");
+    }
+
+    const drawDate = String(
+      formData.get("draw_date") || ""
+    );
+
+    const firstPrize = String(
+      formData.get("first_prize") || ""
+    )
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    const secondPrize = String(
+      formData.get("second_prize") || ""
+    )
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    const thirdPrize = String(
+      formData.get("third_prize") || ""
+    )
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    if (
+      !drawDate ||
+      firstPrize.length !== 4 ||
+      secondPrize.length !== 4 ||
+      thirdPrize.length !== 4
+    ) {
+      redirect(
+        "/admin/trekkingen?error=Controleer+de+datum+en+de+drie+trekkingsnummers"
+      );
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase.rpc(
+      "process_draw",
+      {
+        p_draw_date: drawDate,
+        p_first_prize: firstPrize,
+        p_second_prize: secondPrize,
+        p_third_prize: thirdPrize,
+      }
+    );
+
+    if (error) {
+      redirect(
+        `/admin/trekkingen?error=${encodeURIComponent(
+          error.message
+        )}`
+      );
+    }
+
+    const result =
+      Array.isArray(data)
+        ? data[0]
+        : data;
+
+    const winners =
+      Number(
+        result?.winning_orders || 0
+      );
+
+    const payout =
+      Number(
+        result?.total_payout || 0
+      );
+
+    redirect(
+      `/admin/trekkingen?success=1&winners=${winners}&payout=${payout}`
+    );
   }
-
-  // =========================================================
-  // INKOMSTEN
-  // =========================================================
-
-  const approvedOrders = orders.filter(
-    (order) =>
-      order.payment_status === "approved"
-  );
-
-  const totalIncome =
-    approvedOrders.reduce(
-      (total, order) =>
-        total +
-        Number(order.total_amount || 0),
-      0
-    );
-
-  const todayIncome =
-    approvedOrders
-      .filter((order) =>
-        isToday(
-          order.approved_at ||
-            order.created_at
-        )
-      )
-      .reduce(
-        (total, order) =>
-          total +
-          Number(order.total_amount || 0),
-        0
-      );
-
-  // =========================================================
-  // UITBETAALDE WINSTEN
-  // =========================================================
-
-  const paidOrders = orders.filter(
-    (order) =>
-      order.payout_status === "paid" &&
-      Number(order.winnings || 0) > 0
-  );
-
-  const totalPaidOut =
-    paidOrders.reduce(
-      (total, order) =>
-        total +
-        Number(order.winnings || 0),
-      0
-    );
-
-  const todayPaidOut =
-    paidOrders
-      .filter((order) =>
-        isToday(order.paid_out_at)
-      )
-      .reduce(
-        (total, order) =>
-          total +
-          Number(order.winnings || 0),
-        0
-      );
-
-  // =========================================================
-  // NOG UIT TE BETALEN
-  // =========================================================
-
-  const unpaidWinningOrders =
-    orders.filter(
-      (order) =>
-        order.payout_status ===
-          "pending" &&
-        Number(order.winnings || 0) > 0
-    );
-
-  const totalOutstandingPayout =
-    unpaidWinningOrders.reduce(
-      (total, order) =>
-        total +
-        Number(order.winnings || 0),
-      0
-    );
-
-  const todayOutstandingPayout =
-    unpaidWinningOrders
-      .filter(
-        (order) =>
-          order.draw_date === today
-      )
-      .reduce(
-        (total, order) =>
-          total +
-          Number(order.winnings || 0),
-        0
-      );
-
-  // =========================================================
-  // NETTO RESULTAAT
-  // =========================================================
-
-  const totalNetResult =
-    totalIncome -
-    totalPaidOut -
-    totalOutstandingPayout;
-
-  const todayNetResult =
-    todayIncome -
-    todayPaidOut -
-    todayOutstandingPayout;
-
-  // =========================================================
-  // DASHBOARD CIJFERS
-  // =========================================================
-
-  const pendingCount =
-    pendingOrders?.length ?? 0;
-
-  const pendingPaymentAmount =
-    pendingOrders?.reduce(
-      (total, order) =>
-        total +
-        Number(order.total_amount || 0),
-      0
-    ) ?? 0;
-
-  const approvedCount =
-    approvedOrders.length;
-
-  const playerCount =
-    players?.length ?? 0;
-
-  const winnersToPay =
-    unpaidWinningOrders.length;
-
-  // =========================================================
-  // PAGINA
-  // =========================================================
 
   return (
     <main>
       <div className="siteContainer standardPage">
 
-        {/* =================================================
-            HERO
-        ================================================= */}
-
         <section className="pageHero">
 
           <span className="heroTag">
-            ADMINISTRATIE
+            ADMIN · TREKKING
           </span>
 
           <h1>
-            WNKNL <span>Admin</span>
+            Trekking{" "}
+            <span>verwerken</span>
           </h1>
 
           <p>
-            Beheer spelers, betalingen,
-            trekkingen, winnaars en
-            uitbetalingen.
+            Voer de drie winnende
+            4-cijferige nummers in. Het
+            systeem controleert daarna
+            automatisch alle goedgekeurde
+            deelnames.
           </p>
 
         </section>
 
 
+        {params.success === "1" && (
+
+          <section className="standardSection">
+
+            <div className="infoNotice">
+
+              <strong>
+                Trekking succesvol verwerkt
+              </strong>
+
+              <br />
+              <br />
+
+              Winnende tickets:{" "}
+              <strong>
+                {Number(
+                  params.winners || 0
+                )}
+              </strong>
+
+              <br />
+
+              Totaal uit te betalen:{" "}
+
+              <strong>
+                {money(
+                  Number(
+                    params.payout || 0
+                  )
+                )}
+              </strong>
+
+            </div>
+
+          </section>
+
+        )}
+
+
+        {params.error && (
+
+          <section className="standardSection">
+
+            <div className="loginError">
+              {params.error}
+            </div>
+
+          </section>
+
+        )}
+
+
         {/* =================================================
-            FINANCIEEL OVERZICHT
+            TREKKING INVOEREN
         ================================================= */}
 
         <section className="standardSection">
@@ -308,344 +290,280 @@ export default async function AdminPage() {
           <div className="sectionHeading noCardHeading">
 
             <small>
-              FINANCIEEL OVERZICHT
+              NIEUWE TREKKING
             </small>
 
             <h2>
-              Inkomsten & uitgaven
+              Winnende nummers invoeren
             </h2>
 
             <p>
-              Goedgekeurde inzet wordt als
-              inkomsten gerekend. Gewonnen
-              bedragen blijven openstaan
-              totdat ze zijn uitbetaald.
+              Controleer de nummers goed.
+              Een gepubliceerde trekking
+              kan niet nogmaals worden
+              verwerkt.
             </p>
 
           </div>
 
 
-          <div className="tableWrapper">
+          <form action={processDraw}>
 
-            <table className="siteTable">
+            <div className="accountGrid">
 
-              <thead>
-                <tr>
-                  <th>Onderdeel</th>
-                  <th>Vandaag</th>
-                  <th>Sinds start</th>
-                </tr>
-              </thead>
+              <div className="accountInfoCard">
 
+                <small>
+                  TREKKINGSDATUM
+                </small>
 
-              <tbody>
+                <input
+                  type="date"
+                  name="draw_date"
+                  defaultValue={today}
+                  required
+                  style={{
+                    width: "100%",
+                    marginTop: "10px",
+                    padding: "13px",
+                    border:
+                      "1px solid #d8dee9",
+                    borderRadius: "8px",
+                    fontSize: "16px",
+                  }}
+                />
 
-                <tr>
-                  <td>
-                    <strong>
-                      Inkomsten uit inzet
-                    </strong>
-                  </td>
-
-                  <td>
-                    <strong>
-                      {money(todayIncome)}
-                    </strong>
-                  </td>
-
-                  <td>
-                    <strong>
-                      {money(totalIncome)}
-                    </strong>
-                  </td>
-                </tr>
+              </div>
 
 
-                <tr>
-                  <td>
-                    Uitbetaald aan winnaars
-                  </td>
+              <div className="accountInfoCard">
 
-                  <td>
-                    {money(todayPaidOut)}
-                  </td>
+                <small>
+                  1E PRIJS
+                </small>
 
-                  <td>
-                    {money(totalPaidOut)}
-                  </td>
-                </tr>
+                <input
+                  type="text"
+                  name="first_prize"
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  placeholder="7734"
+                  required
+                  style={{
+                    width: "100%",
+                    marginTop: "10px",
+                    padding: "13px",
+                    border:
+                      "1px solid #d8dee9",
+                    borderRadius: "8px",
+                    fontSize: "22px",
+                    fontWeight: 800,
+                    letterSpacing: "4px",
+                  }}
+                />
 
-
-                <tr>
-                  <td>
-                    Nog uit te betalen
-                  </td>
-
-                  <td>
-                    {money(
-                      todayOutstandingPayout
-                    )}
-                  </td>
-
-                  <td>
-                    {money(
-                      totalOutstandingPayout
-                    )}
-                  </td>
-                </tr>
+              </div>
 
 
-                <tr>
-                  <td>
-                    <strong>
-                      Netto resultaat
-                    </strong>
-                  </td>
+              <div className="accountInfoCard">
 
-                  <td>
-                    <strong>
-                      {money(todayNetResult)}
-                    </strong>
-                  </td>
+                <small>
+                  2E PRIJS
+                </small>
 
-                  <td>
-                    <strong>
-                      {money(totalNetResult)}
-                    </strong>
-                  </td>
-                </tr>
+                <input
+                  type="text"
+                  name="second_prize"
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  placeholder="2189"
+                  required
+                  style={{
+                    width: "100%",
+                    marginTop: "10px",
+                    padding: "13px",
+                    border:
+                      "1px solid #d8dee9",
+                    borderRadius: "8px",
+                    fontSize: "22px",
+                    fontWeight: 800,
+                    letterSpacing: "4px",
+                  }}
+                />
 
-              </tbody>
+              </div>
 
-            </table>
-
-          </div>
+            </div>
 
 
-          <div className="infoNotice">
+            <div
+              style={{
+                marginTop: "15px",
+                maxWidth: "360px",
+              }}
+            >
 
-            <strong>
-              Netto resultaat
-            </strong>{" "}
-            = goedgekeurde inzet minus
-            uitbetaalde prijzen minus
-            prijzen die nog uitbetaald
-            moeten worden.
+              <div className="accountInfoCard">
 
-          </div>
+                <small>
+                  3E PRIJS
+                </small>
+
+                <input
+                  type="text"
+                  name="third_prize"
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  placeholder="5567"
+                  required
+                  style={{
+                    width: "100%",
+                    marginTop: "10px",
+                    padding: "13px",
+                    border:
+                      "1px solid #d8dee9",
+                    borderRadius: "8px",
+                    fontSize: "22px",
+                    fontWeight: 800,
+                    letterSpacing: "4px",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+
+            <div
+              className="infoNotice"
+              style={{
+                marginTop: "20px",
+              }}
+            >
+
+              <strong>
+                Let op
+              </strong>
+
+              <br />
+              <br />
+
+              Alleen goedgekeurde
+              betalingen voor deze
+              trekkingsdatum worden
+              gecontroleerd.
+
+            </div>
+
+
+            <div
+              style={{
+                marginTop: "20px",
+              }}
+            >
+
+              <button
+                type="submit"
+                className="primaryButton"
+              >
+                Trekking verwerken →
+              </button>
+
+            </div>
+
+          </form>
 
         </section>
 
 
         {/* =================================================
-            DASHBOARD
+            EERDERE TREKKINGEN
         ================================================= */}
 
         <section className="standardSection">
 
           <div className="sectionHeading noCardHeading">
 
-            <small>DASHBOARD</small>
-
-            <h2>Overzicht</h2>
-
-          </div>
-
-
-          <div className="adminStatsGrid">
-
-            <div className="adminStatCard">
-
-              <small>
-                OPENSTAANDE BETALINGEN
-              </small>
-
-              <strong>
-                {pendingCount}
-              </strong>
-
-            </div>
-
-
-            <div className="adminStatCard">
-
-              <small>
-                NOG TE CONTROLEREN
-              </small>
-
-              <strong>
-                {money(
-                  pendingPaymentAmount
-                )}
-              </strong>
-
-            </div>
-
-
-            <div className="adminStatCard">
-
-              <small>
-                WINNAARS TE BETALEN
-              </small>
-
-              <strong>
-                {winnersToPay}
-              </strong>
-
-            </div>
-
-
-            <div className="adminStatCard">
-
-              <small>
-                NOG UIT TE BETALEN
-              </small>
-
-              <strong>
-                {money(
-                  totalOutstandingPayout
-                )}
-              </strong>
-
-            </div>
-
-
-            <div className="adminStatCard">
-
-              <small>
-                GOEDGEKEURDE BESTELLINGEN
-              </small>
-
-              <strong>
-                {approvedCount}
-              </strong>
-
-            </div>
-
-
-            <div className="adminStatCard">
-
-              <small>
-                SPELERS
-              </small>
-
-              <strong>
-                {playerCount}
-              </strong>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* =================================================
-            OPENSTAANDE BETALINGEN
-        ================================================= */}
-
-        <section className="standardSection">
-
-          <div className="sectionHeading noCardHeading">
-
-            <small>BETALINGEN</small>
+            <small>
+              HISTORIE
+            </small>
 
             <h2>
-              Openstaande betalingen
+              Recente trekkingen
             </h2>
-
-            <p>
-              Controleer of het juiste
-              bedrag met de juiste
-              betaalreferentie is
-              ontvangen.
-            </p>
 
           </div>
 
 
-          {!pendingOrders ||
-          pendingOrders.length === 0 ? (
+          {!draws ||
+          draws.length === 0 ? (
 
             <div className="emptyState">
-              Er zijn momenteel geen
-              openstaande betalingen.
+              Nog geen trekkingen.
             </div>
 
           ) : (
 
-            <div className="adminOrderList">
+            <div className="tableWrapper">
 
-              {pendingOrders.map(
-                (order) => {
+              <table className="siteTable">
 
-                  const profileData =
-                    Array.isArray(
-                      order.profiles
-                    )
-                      ? order.profiles[0]
-                      : order.profiles;
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>1e</th>
+                    <th>2e</th>
+                    <th>3e</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
 
-                  return (
-                    <div
-                      className="adminOrderCard"
-                      key={order.id}
-                    >
 
-                      <div className="adminOrderMain">
+                <tbody>
 
-                        <small>
-                          BETAALREFERENTIE
-                        </small>
+                  {draws.map((draw) => (
 
+                    <tr key={draw.id}>
+
+                      <td>
+                        {draw.draw_date}
+                      </td>
+
+                      <td>
                         <strong>
-                          {order.payment_reference ||
-                            "Geen referentie"}
+                          {draw.first_prize}
                         </strong>
+                      </td>
 
-                        <span>
-                          Account{" "}
-                          {profileData
-                            ?.account_number ??
-                            "—"}
-                        </span>
-
-                      </div>
-
-
-                      <div className="adminOrderAmount">
-
-                        <small>
-                          BEDRAG
-                        </small>
-
+                      <td>
                         <strong>
-                          {money(
-                            Number(
-                              order.total_amount ||
-                                0
-                            )
-                          )}
+                          {draw.second_prize}
                         </strong>
+                      </td>
 
-                      </div>
+                      <td>
+                        <strong>
+                          {draw.third_prize}
+                        </strong>
+                      </td>
 
+                      <td>
+                        {draw.status ===
+                        "published"
+                          ? "Verwerkt"
+                          : "In behandeling"}
+                      </td>
 
-                      <div className="adminOrderActions">
+                    </tr>
 
-                        <Link
-                          href={`/admin/orders/${order.id}`}
-                          className="primaryButton"
-                        >
-                          Bekijk bestelling →
-                        </Link>
+                  ))}
 
-                      </div>
+                </tbody>
 
-                    </div>
-                  );
-                }
-              )}
+              </table>
 
             </div>
 
@@ -654,101 +572,13 @@ export default async function AdminPage() {
         </section>
 
 
-        {/* =================================================
-            BEHEER
-        ================================================= */}
-
-        <section className="standardSection">
-
-          <div className="sectionHeading noCardHeading">
-
-            <small>BEHEER</small>
-
-            <h2>Administratie</h2>
-
-          </div>
-
-
-          <div className="adminMenuGrid">
-
-            <div className="adminMenuCard">
-
-              <span>01</span>
-
-              <h3>Betalingen</h3>
-
-              <p>
-                Controleer betalingen en
-                keur deelnames goed of af.
-              </p>
-
-            </div>
-
-
-            {/* =============================================
-                TREKKINGEN - NU KLIKBAAR
-            ============================================= */}
-
-            <Link
-              href="/admin/trekkingen"
-              className="adminMenuCard"
-            >
-
-              <span>02</span>
-
-              <h3>Trekkingen</h3>
-
-              <p>
-                Voer de eerste, tweede en
-                derde prijs in en laat het
-                systeem automatisch alle
-                winnaars berekenen.
-              </p>
-
-            </Link>
-
-
-            <div className="adminMenuCard">
-
-              <span>03</span>
-
-              <h3>Winnaars</h3>
-
-              <p>
-                Bekijk de automatisch
-                berekende winnaars en
-                gewonnen bedragen.
-              </p>
-
-            </div>
-
-
-            <div className="adminMenuCard">
-
-              <span>04</span>
-
-              <h3>Uitbetalingen</h3>
-
-              <p>
-                Bekijk welke winnaars nog
-                betaald moeten worden en
-                registreer de uitbetaling.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
         <div className="adminBack">
 
           <Link
-            href="/account"
+            href="/admin"
             className="accountButton adminBackButton"
           >
-            ← Terug naar mijn account
+            ← Terug naar admin
           </Link>
 
         </div>
