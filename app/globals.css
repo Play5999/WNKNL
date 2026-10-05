@@ -1,133 +1,162 @@
 /* =========================================================
-   HOE WERKT HET?
+   HOE WERKT HET - WNKNL
    ========================================================= */
 
-.rulesPage {
-  max-width: 1180px;
+.howPage {
+  width: min(1180px, calc(100% - 30px));
+  margin: 22px auto 60px;
 }
 
-.rulesHero {
-  padding: 45px;
-  margin-bottom: 35px;
+/* HERO */
+
+.howHero {
+  padding: 42px 45px;
+  margin-bottom: 42px;
 
   border-radius: 16px;
 
   background:
     linear-gradient(
       120deg,
-      var(--blue-dark),
-      var(--blue),
-      #075cc1
+      #082b6f 0%,
+      #003da5 60%,
+      #075cc1 100%
     );
 
   color: white;
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 8px 30px rgba(8, 43, 111, 0.08);
 }
 
-.rulesHero h1 {
+.howHero h1 {
   margin: 15px 0 12px;
 
-  font-size: clamp(35px, 5vw, 54px);
+  font-size: clamp(36px, 5vw, 55px);
   line-height: 1;
+
   letter-spacing: -2px;
 }
 
-.rulesHero h1 span {
+.howHero h1 span {
   display: block;
-  color: var(--yellow);
+
+  margin-top: 4px;
+
+  color: #f9df00;
 }
 
-.rulesHero p {
-  max-width: 700px;
+.howHero p {
+  max-width: 650px;
 
-  margin: 0;
+  margin: 0 0 22px;
 
   color: rgba(255, 255, 255, 0.82);
 
+  font-size: 14px;
   line-height: 1.6;
 }
 
-/* STAPPEN */
+/* SECTIONS */
 
-.rulesIntro,
-.matchSection,
-.prizesSection,
-.calculatorSection {
-  margin-bottom: 45px;
+.howSection {
+  margin-bottom: 48px;
 }
 
-.rulesIntro > h2 {
-  margin: 0 0 20px;
-
-  font-size: 26px;
+.howTitle {
+  margin-bottom: 19px;
 }
 
-.ruleSteps {
+.howTitle h2 {
+  margin: 3px 0 8px;
+
+  color: #142a48;
+
+  font-size: 27px;
+}
+
+.howTitle p {
+  margin: 0;
+
+  color: #6c7b8f;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* FOUR STEPS */
+
+.howSteps {
   display: grid;
 
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
 
   gap: 12px;
 }
 
-.ruleSteps article {
+.howSteps article {
   min-height: 190px;
 
-  padding: 20px;
+  padding: 21px;
 
-  border: 1px solid var(--border);
+  border: 1px solid #dfe7f0;
   border-radius: 12px;
 
   background: white;
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 6px 22px rgba(8, 43, 111, 0.05);
 }
 
-.ruleSteps b {
-  width: 34px;
-  height: 34px;
+.howSteps b {
+  width: 35px;
+  height: 35px;
 
   display: grid;
   place-items: center;
 
   border-radius: 50%;
 
-  background: var(--blue);
-  color: var(--yellow);
+  background: #003da5;
+  color: #f9df00;
 
   font-size: 11px;
+  font-weight: 900;
 }
 
-.ruleSteps h3 {
-  margin: 18px 0 8px;
+.howSteps h3 {
+  margin: 17px 0 8px;
 
-  color: var(--blue-dark);
+  color: #082b6f;
+
+  font-size: 16px;
 }
 
-.ruleSteps p {
+.howSteps p {
   margin: 0;
 
-  color: var(--muted);
+  color: #6c7b8f;
 
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
-/* VOORBEELD TREKKING */
+/* EXAMPLE */
 
-.drawExample {
-  padding: 28px;
+.examplePanel {
+  padding: 27px;
 
-  border: 1px solid var(--border);
+  border: 1px solid #dfe7f0;
   border-radius: 14px;
 
   background: white;
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 6px 22px rgba(8, 43, 111, 0.05);
 }
 
-.drawNumber {
+.exampleDraw {
   display: flex;
 
   gap: 7px;
@@ -135,161 +164,206 @@
   margin-bottom: 25px;
 }
 
-.drawNumber span {
-  width: 52px;
-  height: 60px;
+.exampleDraw span {
+  width: 54px;
+  height: 62px;
 
   display: grid;
   place-items: center;
 
   border-radius: 8px;
 
-  background: var(--blue-dark);
-  color: var(--yellow);
+  background: #082b6f;
+  color: #f9df00;
 
-  font-size: 25px;
+  font-size: 26px;
   font-weight: 900;
 }
 
-.matchExamples {
+.exampleMatches {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: 11px;
 }
 
-.matchExamples article {
+.exampleMatches article {
   padding: 18px;
 
   border-radius: 10px;
 
-  background: #f5f8fc;
+  background: #f3f7fc;
 }
 
-.matchBadge {
+.exampleMatches small {
   display: block;
 
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 
-  color: var(--blue);
+  color: #003da5;
 
   font-size: 9px;
   font-weight: 900;
 
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
 }
 
-.matchExamples strong {
-  color: var(--blue-dark);
+.exampleMatches strong {
+  color: #082b6f;
 
   font-size: 26px;
   letter-spacing: 3px;
 }
 
-.matchExamples p {
+.exampleMatches p {
   margin: 7px 0 0;
 
-  color: var(--muted);
+  color: #6c7b8f;
 
   font-size: 12px;
   line-height: 1.5;
 }
 
-/* PRIJZENTABEL */
+/* PRIZE TABLE */
 
-.prizeTableWrapper {
+.payoutTableWrapper {
   overflow-x: auto;
 
-  border: 1px solid var(--border);
+  border: 1px solid #dfe7f0;
   border-radius: 12px;
 
   background: white;
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 6px 22px rgba(8, 43, 111, 0.05);
 }
 
-.prizeTable {
+.payoutTable {
   width: 100%;
 
   border-collapse: collapse;
 }
 
-.prizeTable th,
-.prizeTable td {
-  padding: 16px 18px;
+.payoutTable th {
+  padding: 14px 17px;
+
+  background: #082b6f;
+  color: white;
 
   text-align: left;
 
-  border-bottom: 1px solid var(--border-light);
-}
-
-.prizeTable th {
-  background: var(--blue-dark);
-  color: white;
-
   font-size: 10px;
-  text-transform: uppercase;
+  font-weight: 900;
+
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.prizeTable td {
+.payoutTable td {
+  padding: 15px 17px;
+
+  border-bottom: 1px solid #edf1f5;
+
+  color: #142a48;
+
   font-size: 13px;
 }
 
-.prizeTable tbody tr:last-child td {
+.payoutTable tbody tr:last-child td {
   border-bottom: 0;
 }
 
-.pendingPrize {
-  color: var(--muted);
+.exampleNumber {
+  color: #003da5 !important;
 
-  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 
-.prizeWarning {
-  padding: 12px 14px;
-  margin: 12px 0 0;
+.pending {
+  display: inline-block;
 
-  border: 1px solid #e9dc82;
+  padding: 5px 8px;
+
+  border-radius: 5px;
+
+  background: #eef3f8;
+  color: #6c7b8f;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.yellowNotice {
+  margin-top: 11px;
+  padding: 12px 14px;
+
+  border: 1px solid #e8d849;
   border-radius: 8px;
 
-  background: #fffceb;
+  background: #fffbe0;
 
-  color: #6a623a;
+  color: #665f2c;
 
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 /* CALCULATOR */
 
-.calculatorSection {
+.calculator {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(350px, 0.8fr);
 
-  gap: 35px;
+  gap: 40px;
 
   align-items: center;
 
-  padding: 32px;
+  padding: 34px;
+  margin-bottom: 25px;
 
   border-radius: 15px;
 
-  background: var(--blue-dark);
+  background:
+    linear-gradient(
+      120deg,
+      #082b6f,
+      #003da5
+    );
 
   color: white;
 }
 
-.calculatorText h2 {
-  margin: 5px 0 10px;
+.calculatorEyebrow {
+  color: #f9df00;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+.calculatorIntro h2 {
+  margin: 7px 0 10px;
 
   color: white;
 
-  font-size: 28px;
+  font-size: 31px;
+  line-height: 1.05;
 }
 
-.calculatorText p {
+.calculatorIntro h2 span {
+  display: block;
+
+  color: #f9df00;
+}
+
+.calculatorIntro p {
   max-width: 500px;
 
   margin: 0;
@@ -300,178 +374,223 @@
   line-height: 1.6;
 }
 
-.calculatorSection .eyebrow {
-  color: var(--yellow);
-}
-
-.calculatorCard {
+.calculatorBox {
   padding: 22px;
 
-  border-radius: 12px;
+  border-radius: 11px;
 
   background: white;
 
-  color: var(--text);
+  color: #142a48;
 }
 
-.calculatorCard label {
+.calculatorBox label {
   display: block;
 
-  margin-bottom: 15px;
-
-  color: var(--blue-dark);
-
-  font-size: 11px;
-  font-weight: 900;
+  margin-bottom: 14px;
 }
 
-.calculatorCard select {
+.calculatorBox label > span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #082b6f;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.calculatorBox select {
   width: 100%;
   height: 43px;
 
-  display: block;
-
-  margin-top: 6px;
   padding: 0 10px;
 
   border: 1px solid #ccd7e3;
   border-radius: 7px;
 
+  outline: none;
+
   background: white;
+
+  color: #142a48;
 }
 
-.calculatorMoney {
+.calcMoney {
   height: 43px;
 
   display: flex;
   align-items: center;
 
-  margin-top: 6px;
-
   border: 1px solid #ccd7e3;
   border-radius: 7px;
+
+  overflow: hidden;
 }
 
-.calculatorMoney span {
-  padding-left: 12px;
+.calcMoney b {
+  padding-left: 11px;
 
-  color: var(--muted);
+  color: #6c7b8f;
+
+  font-size: 13px;
 }
 
-.calculatorMoney input {
+.calcMoney input {
   width: 100%;
   height: 100%;
 
   padding: 0 8px;
 
   border: 0;
-  outline: none;
+  outline: 0;
 
   background: transparent;
+
+  color: #142a48;
 }
 
-.calculatorResult {
-  padding: 18px;
+.calcResult {
+  padding: 17px;
 
   border-radius: 9px;
 
-  background: var(--blue-soft);
+  background: #eef6ff;
 }
 
-.calculatorResult span,
-.calculatorResult small {
+.calcResult small {
   display: block;
+
+  color: #6c7b8f;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
 }
 
-.calculatorResult span {
-  color: var(--muted);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-}
-
-.calculatorResult strong {
+.calcResult strong {
   display: block;
 
   margin: 5px 0;
 
-  color: var(--blue);
+  color: #003da5;
 
   font-size: 30px;
 }
 
-.calculatorResult small {
-  color: var(--muted);
+.calcResult p {
+  margin: 0;
+
+  color: #6c7b8f;
 
   font-size: 10px;
 }
 
-/* TERUG NAAR SPELEN */
+/* CTA */
 
-.backToPlay {
+.playCTA {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  gap: 20px;
+  gap: 25px;
 
-  padding: 25px;
+  padding: 23px;
 
-  border: 1px solid var(--border);
+  border: 1px solid #dfe7f0;
   border-radius: 12px;
 
   background: white;
 }
 
-.backToPlay h2 {
-  margin: 0;
+.playCTA h2 {
+  margin: 2px 0 4px;
+
+  color: #142a48;
 }
 
-/* RESPONSIVE */
+.playCTA p {
+  margin: 0;
 
-@media (max-width: 800px) {
-  .ruleSteps {
+  color: #6c7b8f;
+
+  font-size: 12px;
+}
+
+.activeNav {
+  background: rgba(255, 255, 255, 0.1);
+  color: white !important;
+}
+
+/* TABLET */
+
+@media (max-width: 850px) {
+  .howSteps {
     grid-template-columns: 1fr 1fr;
   }
 
-  .matchExamples {
-    grid-template-columns: 1fr;
-  }
-
-  .calculatorSection {
+  .calculator {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 550px) {
-  .rulesHero {
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .howPage {
+    width: calc(100% - 20px);
+
+    margin-top: 12px;
+  }
+
+  .howHero {
     padding: 27px 20px;
+
+    border-radius: 12px;
   }
 
-  .rulesHero h1 {
-    font-size: 36px;
+  .howHero h1 {
+    font-size: 37px;
   }
 
-  .ruleSteps {
+  .howSteps {
     grid-template-columns: 1fr;
   }
 
-  .drawExample {
-    padding: 18px;
+  .howSteps article {
+    min-height: auto;
   }
 
-  .drawNumber span {
+  .examplePanel {
+    padding: 16px;
+  }
+
+  .exampleDraw span {
     width: 45px;
-    height: 53px;
+    height: 52px;
+
+    font-size: 21px;
   }
 
-  .calculatorSection {
+  .exampleMatches {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator {
     padding: 20px;
+
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .backToPlay {
+  .calculatorBox {
+    padding: 16px;
+  }
+
+  .playCTA {
     align-items: flex-start;
     flex-direction: column;
   }
