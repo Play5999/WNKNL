@@ -8,6 +8,7 @@ type Play = {
   id: number;
   number: string;
   stake: string;
+  suggestedFrom?: number;
 };
 
 type Games = {
@@ -42,17 +43,36 @@ export default function Home() {
 
   function removeNumber(type: GameType, id: number) {
     setGames((current) => {
-      const remaining = current[type].filter(
+      const updated: Games = {
+        4: current[4].map((item) => ({ ...item })),
+        3: current[3].map((item) => ({ ...item })),
+        2: current[2].map((item) => ({ ...item })),
+      };
+
+      /*
+        Als een 4-cijfernummer verwijderd wordt,
+        verwijderen we ook de automatisch gekoppelde
+        suggesties, zolang die nog automatisch zijn.
+      */
+      if (type === 4) {
+        updated[3] = updated[3].filter(
+          (item) => item.suggestedFrom !== id
+        );
+
+        updated[2] = updated[2].filter(
+          (item) => item.suggestedFrom !== id
+        );
+      }
+
+      updated[type] = updated[type].filter(
         (item) => item.id !== id
       );
 
-      return {
-        ...current,
-        [type]:
-          remaining.length > 0
-            ? remaining
-            : [newPlay()],
-      };
+      if (updated[type].length === 0) {
+        updated[type] = [newPlay()];
+      }
+
+      return updated;
     });
   }
 
@@ -76,35 +96,83 @@ export default function Home() {
         (entry) => entry.id === id
       );
 
-      if (!item) return current;
+      if (!item) {
+        return current;
+      }
 
       item.number = clean;
 
       /*
-        Bij 4 cijfers:
-        vul alleen een LEGE 3- en 2-cijferregel automatisch.
+        Als je zelf een 3- of 2-cijfernummer aanpast,
+        is het vanaf dat moment geen automatische
+        suggestie meer.
       */
-      if (type === 4 && clean.length === 4) {
-        const three = updated[3].find(
-          (entry) =>
-            entry.number === "" &&
-            entry.stake === ""
-        );
-
-        const two = updated[2].find(
-          (entry) =>
-            entry.number === "" &&
-            entry.stake === ""
-        );
-
-        if (three) {
-          three.number = clean.slice(-3);
-        }
-
-        if (two) {
-          two.number = clean.slice(-2);
-        }
+      if (type === 3 || type === 2) {
+        item.suggestedFrom = undefined;
+        return updated;
       }
+
+      /*
+        Hier verwerken we een 4-cijfernummer.
+      */
+      ([3, 2] as const).forEach((targetType) => {
+        const existingSuggestion =
+          updated[targetType].find(
+            (entry) => entry.suggestedFrom === id
+          );
+
+        /*
+          Als het 4-cijfernummer nog niet compleet is,
+          maken we de gekoppelde suggestie leeg.
+        */
+        if (clean.length !== 4) {
+          if (existingSuggestion) {
+            existingSuggestion.number = "";
+          }
+
+          return;
+        }
+
+        const suggestion = clean.slice(-targetType);
+
+        /*
+          Bestaat de automatische suggestie al?
+          Dan wordt hij LIVE bijgewerkt.
+
+          1234 -> 234 / 34
+          1245 -> 245 / 45
+        */
+        if (existingSuggestion) {
+          existingSuggestion.number = suggestion;
+          return;
+        }
+
+        /*
+          Gebruik eerst een volledig lege regel.
+        */
+        const emptyRow = updated[targetType].find(
+          (entry) =>
+            entry.number === "" &&
+            entry.stake === "" &&
+            entry.suggestedFrom === undefined
+        );
+
+        if (emptyRow) {
+          emptyRow.number = suggestion;
+          emptyRow.suggestedFrom = id;
+          return;
+        }
+
+        /*
+          Anders maken we automatisch een nieuwe regel.
+        */
+        updated[targetType].push({
+          id: nextId++,
+          number: suggestion,
+          stake: "",
+          suggestedFrom: id,
+        });
+      });
 
       return updated;
     });
@@ -159,47 +227,13 @@ export default function Home() {
   }, [games]);
 
   const total = selected.reduce(
-    (sum, item) =>
-      sum + toAmount(item.stake),
+    (sum, item) => sum + toAmount(item.stake),
     0
   );
 
   return (
     <main>
-      <header className="topbar">
-        <a href="/" className="logo">
-          <span className="logoStar">★</span>
-
-          <div>
-            <strong>WEGI NUMBER KÒRSOU</strong>
-            <small>WNKNL</small>
-          </div>
-        </a>
-
-        <nav>
-          <a href="#spelen">Spelen</a>
-          <a href="#uitslagen">Uitslagen</a>
-
-          <a href="/hoe-werkt-het">
-            Hoe werkt het?
-          </a>
-
-          <button className="accountButton">
-            Mijn account
-          </button>
-
-          <select
-            className="languageSelect"
-            defaultValue="NL"
-          >
-            <option>NL</option>
-            <option>PAP</option>
-            <option>EN</option>
-          </select>
-        </nav>
-      </header>
-
-      <div className="page">
+      <div className="siteContainer pageContent">
         <section className="hero">
           <div className="heroContent">
             <span className="heroTag">
@@ -212,15 +246,11 @@ export default function Home() {
             </h1>
 
             <p>
-              Kies zelf je 4-, 3- of
-              2-cijferige nummers en bepaal
-              je inzet per nummer.
+              Kies zelf je 4-, 3- of 2-cijferige nummers
+              en bepaal je inzet per nummer.
             </p>
 
-            <a
-              href="#spelen"
-              className="yellowButton"
-            >
+            <a href="#spelen" className="yellowButton">
               Speel nu →
             </a>
           </div>
@@ -228,27 +258,20 @@ export default function Home() {
           <div className="heroNumbers">
             <span>1</span>
             <span>2</span>
-            <span className="yellowNumber">
-              3
-            </span>
+            <span className="yellowNumber">3</span>
             <span>4</span>
           </div>
         </section>
 
-        <section
-          className="playPanel"
-          id="spelen"
-        >
-          <div className="panelTitle">
+        <section className="contentCard" id="spelen">
+          <div className="sectionHeading">
             <small>SPELEN</small>
-
             <h2>Jouw nummers</h2>
 
             <p>
-              Vul je nummers en inzet in.
-              Bij een 4-cijferig nummer
-              worden de laatste 3 en 2
-              cijfers automatisch voorgesteld.
+              Vul je nummers en inzet in. Bij een
+              4-cijferig nummer worden de laatste
+              3 en 2 cijfers automatisch voorgesteld.
             </p>
           </div>
 
@@ -258,9 +281,7 @@ export default function Home() {
               type={4}
               games={games[4]}
               onAdd={() => addNumber(4)}
-              onRemove={(id) =>
-                removeNumber(4, id)
-              }
+              onRemove={(id) => removeNumber(4, id)}
               onNumber={(id, value) =>
                 updateNumber(4, id, value)
               }
@@ -274,9 +295,7 @@ export default function Home() {
               type={3}
               games={games[3]}
               onAdd={() => addNumber(3)}
-              onRemove={(id) =>
-                removeNumber(3, id)
-              }
+              onRemove={(id) => removeNumber(3, id)}
               onNumber={(id, value) =>
                 updateNumber(3, id, value)
               }
@@ -290,9 +309,7 @@ export default function Home() {
               type={2}
               games={games[2]}
               onAdd={() => addNumber(2)}
-              onRemove={(id) =>
-                removeNumber(2, id)
-              }
+              onRemove={(id) => removeNumber(2, id)}
               onNumber={(id, value) =>
                 updateNumber(2, id, value)
               }
@@ -303,54 +320,43 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="overviewPanel">
-          <div className="overviewTop">
+        <section className="contentCard overviewCard">
+          <div className="overviewHeader">
             <div>
               <small>OVERZICHT</small>
               <h2>Jouw deelname</h2>
             </div>
 
-            <div className="total">
+            <div className="totalStake">
               <span>Totale inzet</span>
 
               <strong>
                 €{" "}
-                {total.toLocaleString(
-                  "nl-NL",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                )}
+                {total.toLocaleString("nl-NL", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </strong>
             </div>
           </div>
 
           {selected.length === 0 ? (
             <div className="emptyState">
-              Nog geen volledig ingevulde
-              nummers met inzet.
+              Nog geen volledig ingevulde nummers met inzet.
             </div>
           ) : (
-            <div className="summary">
+            <div className="summaryList">
               {selected.map((item) => (
                 <div
                   className="summaryRow"
                   key={`${item.type}-${item.id}`}
                 >
-                  <span>
-                    {item.type} cijfers
-                  </span>
-
-                  <strong>
-                    {item.number}
-                  </strong>
+                  <span>{item.type} cijfers</span>
+                  <strong>{item.number}</strong>
 
                   <span>
                     €{" "}
-                    {toAmount(
-                      item.stake
-                    ).toLocaleString(
+                    {toAmount(item.stake).toLocaleString(
                       "nl-NL",
                       {
                         minimumFractionDigits: 2,
@@ -365,10 +371,8 @@ export default function Home() {
 
           <div className="continueArea">
             <button
-              className="continueButton"
-              disabled={
-                selected.length === 0
-              }
+              className="primaryButton"
+              disabled={selected.length === 0}
             >
               Verder →
             </button>
@@ -379,7 +383,7 @@ export default function Home() {
           className="resultsSection"
           id="uitslagen"
         >
-          <div className="sectionTitle">
+          <div className="sectionHeading noCardHeading">
             <small>UITSLAGEN</small>
             <h2>Laatste trekking</h2>
           </div>
@@ -391,15 +395,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
-      <footer>
-        <strong>
-          <span>★</span>{" "}
-          WEGI NUMBER KÒRSOU
-        </strong>
-
-        <span>WNKNL · 2026</span>
-      </footer>
     </main>
   );
 }
@@ -418,14 +413,8 @@ function GameColumn({
   games: Play[];
   onAdd: () => void;
   onRemove: (id: number) => void;
-  onNumber: (
-    id: number,
-    value: string
-  ) => void;
-  onStake: (
-    id: number,
-    value: string
-  ) => void;
+  onNumber: (id: number, value: string) => void;
+  onStake: (id: number, value: string) => void;
 }) {
   return (
     <div className="gameColumn">
@@ -439,22 +428,20 @@ function GameColumn({
 
       <div className="numberRows">
         {games.map((item) => (
-          <div
-            className="numberRow"
-            key={item.id}
-          >
+          <div className="numberRow" key={item.id}>
             <input
-              className="numberInput"
+              className={
+                item.suggestedFrom
+                  ? "numberInput suggestedInput"
+                  : "numberInput"
+              }
               type="text"
               inputMode="numeric"
               maxLength={type}
               placeholder={"0".repeat(type)}
               value={item.number}
               onChange={(event) =>
-                onNumber(
-                  item.id,
-                  event.target.value
-                )
+                onNumber(item.id, event.target.value)
               }
             />
 
@@ -467,20 +454,15 @@ function GameColumn({
                 placeholder="0,00"
                 value={item.stake}
                 onChange={(event) =>
-                  onStake(
-                    item.id,
-                    event.target.value
-                  )
+                  onStake(item.id, event.target.value)
                 }
               />
             </div>
 
             <button
               className="deleteButton"
-              onClick={() =>
-                onRemove(item.id)
-              }
-              title="Verwijderen"
+              onClick={() => onRemove(item.id)}
+              aria-label="Nummer verwijderen"
             >
               ×
             </button>
@@ -488,10 +470,7 @@ function GameColumn({
         ))}
       </div>
 
-      <button
-        className="addButton"
-        onClick={onAdd}
-      >
+      <button className="addButton" onClick={onAdd}>
         + Nummer
       </button>
     </div>
