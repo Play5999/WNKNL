@@ -943,117 +943,31 @@ export default async function AccountPage({
 
                       <div
                         style={{
-                          marginTop: "22px",
-                          padding: "18px",
+                          marginTop: "18px",
+                          padding: "16px",
                           borderRadius: "10px",
                           background: "#fff8d9",
                         }}
                       >
 
-                        <small>
-                          🏆 WINNEND LOT
-                        </small>
-
-                        <h3
-                          style={{
-                            margin: "7px 0 3px",
-                          }}
-                        >
-                          Je hebt{" "}
-                          {money(winnings)} gewonnen
-                        </h3>
-
-                        {winningEntries.map(
-                          (entry) => (
-
-                            <div
-                              key={entry.id}
-                              style={{
-                                marginTop: "14px",
-                                paddingTop: "14px",
-                                borderTop:
-                                  "1px solid rgba(0,0,0,0.1)",
-                              }}
-                            >
-
-                              <strong
-                                style={{
-                                  fontSize: "18px",
-                                }}
-                              >
-                                Nummer{" "}
-                                {entry.played_number}
-                              </strong>
-
-                              <div
-                                style={{
-                                  marginTop: "6px",
-                                  display: "grid",
-                                  gap: "3px",
-                                }}
-                              >
-
-                                <span>
-                                  {numberTypeLabel(
-                                    Number(
-                                      entry.number_type
-                                    )
-                                  )}
-                                </span>
-
-                                <span>
-                                  {prizeLabel(
-                                    entry.prize_position
-                                  )}
-                                </span>
-
-                                {entry.matched_draw_number && (
-                                  <span>
-                                    Winnende trekking:{" "}
-                                    <strong>
-                                      {
-                                        entry.matched_draw_number
-                                      }
-                                    </strong>
-                                  </span>
-                                )}
-
-                                <span>
-                                  Inzet:{" "}
-                                  {money(
-                                    Number(
-                                      entry.stake || 0
-                                    )
-                                  )}
-                                </span>
-
-                                <span>
-                                  Gewonnen:{" "}
-                                  <strong>
-                                    {money(
-                                      Number(
-                                        entry.winnings || 0
-                                      )
-                                    )}
-                                  </strong>
-                                </span>
-
-                              </div>
-
-                            </div>
-
-                          )
-                        )}
-
                         <div
                           style={{
-                            marginTop: "18px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "12px",
+                            flexWrap: "wrap",
                           }}
                         >
+                          <div>
+                            <small>🏆 WINNEND LOT</small>
 
-                          {order.payout_status ===
-                          "paid" ? (
+                            <h3 style={{ margin: "5px 0 0" }}>
+                              Je hebt {money(winnings)} gewonnen
+                            </h3>
+                          </div>
 
+                          {order.payout_status === "paid" ? (
                             <span
                               style={{
                                 display: "inline-block",
@@ -1062,13 +976,12 @@ export default async function AccountPage({
                                 background: "#dcfce7",
                                 color: "#15803d",
                                 fontWeight: 900,
+                                whiteSpace: "nowrap",
                               }}
                             >
                               ✓ Uitbetaald
                             </span>
-
                           ) : (
-
                             <span
                               style={{
                                 display: "inline-block",
@@ -1077,13 +990,84 @@ export default async function AccountPage({
                                 background: "#ffedd5",
                                 color: "#c2410c",
                                 fontWeight: 900,
+                                whiteSpace: "nowrap",
                               }}
                             >
                               Wacht op uitbetaling
                             </span>
-
                           )}
+                        </div>
 
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                              "repeat(auto-fit, minmax(190px, 1fr))",
+                            gap: "10px",
+                            marginTop: "14px",
+                          }}
+                        >
+                          {winningEntries.map((entry) => (
+                            <div
+                              key={entry.id}
+                              style={{
+                                padding: "12px",
+                                borderRadius: "8px",
+                                background: "rgba(255,255,255,0.55)",
+                                border: "1px solid rgba(0,0,0,0.08)",
+                              }}
+                            >
+                              <strong
+                                style={{
+                                  display: "block",
+                                  fontSize: "17px",
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                Nummer {entry.played_number}
+                              </strong>
+
+                              <span
+                                style={{
+                                  display: "block",
+                                  fontSize: "13px",
+                                  color: "var(--muted)",
+                                  marginBottom: "7px",
+                                }}
+                              >
+                                {numberTypeLabel(Number(entry.number_type))} ·{" "}
+                                {prizeLabel(entry.prize_position)}
+                              </span>
+
+                              {entry.matched_draw_number && (
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  Trekking:{" "}
+                                  <strong>{entry.matched_draw_number}</strong>
+                                </div>
+                              )}
+
+                              <div
+                                style={{
+                                  fontSize: "14px",
+                                  marginBottom: "4px",
+                                }}
+                              >
+                                Inzet: {money(Number(entry.stake || 0))}
+                              </div>
+
+                              <div style={{ fontSize: "14px" }}>
+                                Gewonnen:{" "}
+                                <strong>
+                                  {money(Number(entry.winnings || 0))}
+                                </strong>
+                              </div>
+                            </div>
+                          ))}
                         </div>
 
                       </div>
