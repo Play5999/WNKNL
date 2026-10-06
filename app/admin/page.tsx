@@ -376,6 +376,33 @@ export default async function AdminPage({
     todayOutstandingPayout;
 
   // =========================================================
+  // SPELERSTOTALEN
+  // =========================================================
+
+  function playerTotals(userId: string) {
+    const playerOrders = orders.filter(
+      (order) =>
+        order.user_id === userId &&
+        order.payment_status === "approved"
+    );
+
+    return {
+      totalSpent: playerOrders.reduce(
+        (total, order) =>
+          total + Number(order.total_amount || 0),
+        0
+      ),
+      totalWon: playerOrders.reduce(
+        (total, order) =>
+          total + Number(order.winnings || 0),
+        0
+      ),
+    };
+  }
+
+  const recentPlayers = (players ?? []).slice(0, 5);
+
+  // =========================================================
   // DASHBOARD CIJFERS
   // =========================================================
 
@@ -978,16 +1005,33 @@ export default async function AdminPage({
         ================================================= */}
 
         <section className="standardSection">
-          <div className="sectionHeading noCardHeading">
-            <small>SPELERS</small>
-            <h2>Alle profielen</h2>
-            <p>
-              Bekijk alle spelersaccounts en open een profiel
-              voor de volledige speel- en betaalhistorie.
-            </p>
+          <div
+            className="sectionHeading noCardHeading"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              gap: "16px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <small>SPELERS</small>
+              <h2>Laatste profielen</h2>
+              <p>
+                De 5 meest recente spelers. Klik op een naam voor het volledige profiel.
+              </p>
+            </div>
+
+            <Link
+              href="/admin/spelers"
+              className="accountButton"
+            >
+              Alle profielen bekijken →
+            </Link>
           </div>
 
-          {!players || players.length === 0 ? (
+          {recentPlayers.length === 0 ? (
             <div className="emptyState">
               Er zijn nog geen spelersaccounts.
             </div>
@@ -1000,40 +1044,71 @@ export default async function AdminPage({
                     <th>Naam</th>
                     <th>E-mail</th>
                     <th>Uitbetaallink</th>
-                    <th></th>
+                    <th>Totale inzet</th>
+                    <th>Totale winst</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {players.map((player) => (
-                    <tr key={player.id}>
-                      <td><strong>{player.account_number ?? "—"}</strong></td>
-                      <td>{player.full_name || "Naam onbekend"}</td>
-                      <td>{player.email || "—"}</td>
-                      <td>
-                        {player.payout_link ? (
-                          <span style={{ color: "#15803d", fontWeight: 800 }}>
-                            ✓ Ingesteld
-                          </span>
-                        ) : (
-                          <span style={{ color: "#c2410c", fontWeight: 800 }}>
-                            Ontbreekt
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <Link
-                          href={`/admin/spelers/${player.id}`}
-                          className="primaryButton"
-                        >
-                          Bekijk profiel →
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {recentPlayers.map((player) => {
+                    const totals = playerTotals(player.id);
+
+                    return (
+                      <tr key={player.id}>
+                        <td>
+                          <strong>{player.account_number ?? "—"}</strong>
+                        </td>
+
+                        <td>
+                          <Link
+                            href={`/admin/spelers/${player.id}`}
+                            style={{
+                              fontWeight: 900,
+                              textDecoration: "underline",
+                              textUnderlineOffset: "3px",
+                            }}
+                          >
+                            {player.full_name || "Naam onbekend"} →
+                          </Link>
+                        </td>
+
+                        <td>{player.email || "—"}</td>
+
+                        <td>
+                          {player.payout_link ? (
+                            <span style={{ color: "#15803d", fontWeight: 900 }}>
+                              ✓ Ja
+                            </span>
+                          ) : (
+                            <span style={{ color: "#b91c1c", fontWeight: 900 }}>
+                              ✕ Nee
+                            </span>
+                          )}
+                        </td>
+
+                        <td>
+                          <strong>{money(totals.totalSpent)}</strong>
+                        </td>
+
+                        <td>
+                          <strong>{money(totals.totalWon)}</strong>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
+
+          <div style={{ marginTop: "16px" }}>
+            <Link
+              href="/admin/spelers"
+              className="primaryButton"
+            >
+              Alle profielen bekijken →
+            </Link>
+          </div>
         </section>
 
 
