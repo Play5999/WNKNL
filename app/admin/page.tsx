@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
 import { createClient } from "../../lib/supabase/server";
 
 function money(value: number) {
@@ -11,7 +12,16 @@ function money(value: number) {
   });
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    draw_saved?: string;
+    draw_deleted?: string;
+    draw_error?: string;
+  }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
 
   // =========================================================
@@ -40,6 +50,126 @@ export default async function AdminPage() {
 
   if (!profile || !profile.is_admin) {
     redirect("/account");
+  }
+
+  // =========================================================
+  // TREKKING VANDAAG - CURAÇAO DATUM
+  // =========================================================
+
+  const drawToday = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Curacao",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const { data: currentDraw } = await supabase
+    .from("draws")
+    .select("id, draw_date, first_prize, second_prize, third_prize, status")
+    .eq("draw_date", drawToday)
+    .maybeSingle();
+
+  async function saveDraw(formData: FormData) {
+    "use server";
+
+    const serverSupabase = await createClient();
+
+    const {
+      data: { user: actionUser },
+    } = await serverSupabase.auth.getUser();
+
+    if (!actionUser) {
+      redirect("/login");
+    }
+
+    const { data: actionProfile } = await serverSupabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", actionUser.id)
+      .single();
+
+    if (!actionProfile?.is_admin) {
+      redirect("/account");
+    }
+
+    const drawDate = String(formData.get("draw_date") || "");
+    const firstPrize = String(formData.get("first_prize") || "").trim();
+    const secondPrize = String(formData.get("second_prize") || "").trim();
+    const thirdPrize = String(formData.get("third_prize") || "").trim();
+
+    const validNumber = /^\d{4}$/;
+
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(drawDate) ||
+      !validNumber.test(firstPrize) ||
+      !validNumber.test(secondPrize) ||
+      !validNumber.test(thirdPrize)
+    ) {
+      redirect("/admin?draw_error=Vul+voor+alle+drie+de+prijzen+precies+4+cijfers+in.");
+    }
+
+    const { error } = await serverSupabase.rpc("process_draw", {
+      p_draw_date: drawDate,
+      p_first_prize: firstPrize,
+      p_second_prize: secondPrize,
+      p_third_prize: thirdPrize,
+    });
+
+    if (error) {
+      redirect(`/admin?draw_error=${encodeURIComponent(error.message)}`);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/uitslagen");
+    revalidatePath("/admin");
+    revalidatePath("/admin/trekkingen");
+    revalidatePath("/admin/winnaars");
+    revalidatePath("/account");
+
+    redirect("/admin?draw_saved=1");
+  }
+
+  async function deleteDraw(formData: FormData) {
+    "use server";
+
+    const serverSupabase = await createClient();
+
+    const {
+      data: { user: actionUser },
+    } = await serverSupabase.auth.getUser();
+
+    if (!actionUser) {
+      redirect("/login");
+    }
+
+    const { data: actionProfile } = await serverSupabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", actionUser.id)
+      .single();
+
+    if (!actionProfile?.is_admin) {
+      redirect("/account");
+    }
+
+    const drawDate = String(formData.get("draw_date") || "");
+
+    const { error } = await serverSupabase.rpc("delete_draw", {
+      p_draw_date: drawDate,
+    });
+
+    if (error) {
+      redirect(`/admin?draw_error=${encodeURIComponent(error.message)}`);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/uitslagen");
+    revalidatePath("/admin");
+    revalidatePath("/admin/trekkingen");
+    revalidatePath("/admin/winnaars");
+    revalidatePath("/account");
+
+    redirect("/admin?draw_deleted=1");
   }
 
   // =========================================================
@@ -305,56 +435,186 @@ export default async function AdminPage() {
         ================================================= */}
 
         <section className="standardSection">
-          <div className="sectionHeading noCardHeading">
-            <small>DAGELIJKSE TREKKING</small>
-            <h2>Winnende nummers invoeren</h2>
-            <p>
-              Voer de uitslag van vandaag in. Het systeem berekent daarna
-              automatisch de winnaars en gewonnen bedragen.
-            </p>
-          </div>
-
           <div
-            className="accountInfoCard"
+            className="sectionHeading noCardHeading"
             style={{
               display: "flex",
-              alignItems: "center",
               justifyContent: "space-between",
-              gap: "18px",
+              alignItems: "flex-end",
+              gap: "16px",
               flexWrap: "wrap",
             }}
           >
             <div>
-              <strong style={{ display: "block", fontSize: "1.15rem" }}>
-                Trekking verwerken
-              </strong>
-              <span>
-                1e, 2e en 3e prijs invoeren
-              </span>
+              <small>DAGELIJKSE TREKKING</small>
+              <h2 style={{ marginBottom: "6px" }}>
+                Winnende nummers invoeren
+              </h2>
+              <p style={{ marginBottom: 0 }}>
+                Speeldag {drawToday} · Curaçao-datum
+              </p>
             </div>
 
+            <Link
+              href="/admin/trekkingen"
+              className="accountButton"
+            >
+              Trekkinghistorie →
+            </Link>
+          </div>
+
+          {params.draw_saved === "1" && (
             <div
               style={{
+                padding: "13px 15px",
+                marginBottom: "14px",
+                borderRadius: "8px",
+                background: "#dcfce7",
+                color: "#15803d",
+                fontWeight: 800,
+              }}
+            >
+              ✓ Trekking opgeslagen en winnaars opnieuw berekend.
+            </div>
+          )}
+
+          {params.draw_deleted === "1" && (
+            <div
+              style={{
+                padding: "13px 15px",
+                marginBottom: "14px",
+                borderRadius: "8px",
+                background: "#fff8d9",
+                color: "#7c5b00",
+                fontWeight: 800,
+              }}
+            >
+              Trekking verwijderd. De bijbehorende winstberekening is teruggedraaid.
+            </div>
+          )}
+
+          {params.draw_error && (
+            <div className="loginError" style={{ marginBottom: "14px" }}>
+              {params.draw_error}
+            </div>
+          )}
+
+          <form action={saveDraw}>
+            <input
+              type="hidden"
+              name="draw_date"
+              value={drawToday}
+            />
+
+            <div
+              className="accountInfoCard"
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(160px, 1fr))",
+                gap: "14px",
+                alignItems: "end",
+              }}
+            >
+              {[
+                ["first_prize", "1e prijs", currentDraw?.first_prize || ""],
+                ["second_prize", "2e prijs", currentDraw?.second_prize || ""],
+                ["third_prize", "3e prijs", currentDraw?.third_prize || ""],
+              ].map(([name, label, value]) => (
+                <label
+                  key={name}
+                  style={{
+                    display: "grid",
+                    gap: "7px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <span>{label}</span>
+                  <input
+                    name={name}
+                    defaultValue={value}
+                    inputMode="numeric"
+                    pattern="[0-9]{4}"
+                    maxLength={4}
+                    minLength={4}
+                    placeholder="0000"
+                    required
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      padding: "13px 14px",
+                      border: "1px solid #d8dee9",
+                      borderRadius: "8px",
+                      fontSize: "22px",
+                      fontWeight: 900,
+                      letterSpacing: "5px",
+                    }}
+                  />
+                </label>
+              ))}
+
+              <button
+                type="submit"
+                className="primaryButton"
+                style={{
+                  minHeight: "50px",
+                  border: 0,
+                  cursor: "pointer",
+                }}
+              >
+                {currentDraw
+                  ? "Wijzig & opnieuw verwerken"
+                  : "Uitslag opslaan"}
+              </button>
+            </div>
+          </form>
+
+          {currentDraw && (
+            <div
+              style={{
+                marginTop: "12px",
                 display: "flex",
-                gap: "10px",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
                 flexWrap: "wrap",
               }}
             >
-              <Link
-                href="/admin/trekkingen"
-                className="primaryButton"
+              <span
+                style={{
+                  color: "#15803d",
+                  fontWeight: 800,
+                }}
               >
-                Winnende nummers invoeren →
-              </Link>
+                ✓ Uitslag gepubliceerd:{" "}
+                {currentDraw.first_prize} ·{" "}
+                {currentDraw.second_prize} ·{" "}
+                {currentDraw.third_prize}
+              </span>
 
-              <Link
-                href="/uitslagen"
-                className="accountButton"
-              >
-                Trekkinghistorie
-              </Link>
+              <form action={deleteDraw}>
+                <input
+                  type="hidden"
+                  name="draw_date"
+                  value={drawToday}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    border: "1px solid #dc2626",
+                    background: "#fff",
+                    color: "#b91c1c",
+                    borderRadius: "8px",
+                    padding: "10px 13px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  Trekking verwijderen
+                </button>
+              </form>
             </div>
-          </div>
+          )}
         </section>
 
 
