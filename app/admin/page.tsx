@@ -99,8 +99,9 @@ export default async function AdminPage() {
 
   const { data: players } = await supabase
     .from("profiles")
-    .select("id")
-    .eq("is_admin", false);
+    .select("id, account_number, full_name, email, payout_link, created_at, is_admin")
+    .eq("is_admin", false)
+    .order("created_at", { ascending: false });
 
   // =========================================================
   // DATUM VANDAAG
@@ -651,6 +652,70 @@ export default async function AdminPage() {
 
           )}
 
+        </section>
+
+
+        {/* =================================================
+            SPELERS
+        ================================================= */}
+
+        <section className="standardSection">
+          <div className="sectionHeading noCardHeading">
+            <small>SPELERS</small>
+            <h2>Alle profielen</h2>
+            <p>
+              Bekijk alle spelersaccounts en open een profiel
+              voor de volledige speel- en betaalhistorie.
+            </p>
+          </div>
+
+          {!players || players.length === 0 ? (
+            <div className="emptyState">
+              Er zijn nog geen spelersaccounts.
+            </div>
+          ) : (
+            <div className="tableWrapper">
+              <table className="siteTable">
+                <thead>
+                  <tr>
+                    <th>Account</th>
+                    <th>Naam</th>
+                    <th>E-mail</th>
+                    <th>Uitbetaallink</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {players.map((player) => (
+                    <tr key={player.id}>
+                      <td><strong>{player.account_number ?? "—"}</strong></td>
+                      <td>{player.full_name || "Naam onbekend"}</td>
+                      <td>{player.email || "—"}</td>
+                      <td>
+                        {player.payout_link ? (
+                          <span style={{ color: "#15803d", fontWeight: 800 }}>
+                            ✓ Ingesteld
+                          </span>
+                        ) : (
+                          <span style={{ color: "#c2410c", fontWeight: 800 }}>
+                            Ontbreekt
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <Link
+                          href={`/admin/spelers/${player.id}`}
+                          className="primaryButton"
+                        >
+                          Bekijk profiel →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
 
