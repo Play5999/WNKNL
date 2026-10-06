@@ -301,6 +301,64 @@ export default async function AdminPage() {
 
 
         {/* =================================================
+            TREKKING VAN VANDAAG
+        ================================================= */}
+
+        <section className="standardSection">
+          <div className="sectionHeading noCardHeading">
+            <small>DAGELIJKSE TREKKING</small>
+            <h2>Winnende nummers invoeren</h2>
+            <p>
+              Voer de uitslag van vandaag in. Het systeem berekent daarna
+              automatisch de winnaars en gewonnen bedragen.
+            </p>
+          </div>
+
+          <div
+            className="accountInfoCard"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "18px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <strong style={{ display: "block", fontSize: "1.15rem" }}>
+                Trekking verwerken
+              </strong>
+              <span>
+                1e, 2e en 3e prijs invoeren
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+              }}
+            >
+              <Link
+                href="/admin/trekkingen"
+                className="primaryButton"
+              >
+                Winnende nummers invoeren →
+              </Link>
+
+              <Link
+                href="/uitslagen"
+                className="accountButton"
+              >
+                Trekkinghistorie
+              </Link>
+            </div>
+          </div>
+        </section>
+
+
+        {/* =================================================
             FINANCIEEL OVERZICHT
         ================================================= */}
 
